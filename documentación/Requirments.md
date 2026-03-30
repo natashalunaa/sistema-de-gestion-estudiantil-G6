@@ -2,6 +2,7 @@
    <img src="https://www.unrc.edu.ar/img/escudounrc.jpg" alt="Unrc" style="height: 100px;">
    <img src="https://www.exa.unrc.edu.ar/wp-content/uploads/2022/03/LOGO-ICONO-WEB.png" alt="Facultad de Ciencias Exactas" style="height: 100px;">
 </div>
+
 # Contenidos
 * [Integrantes](#integrantes)
 * [Introduccion](#sistema-de-gestión-estudiantil)
@@ -14,6 +15,7 @@
 * [Cambios Ocurridos](#cambios-de-alcance-ocurridos)
 * [Problemas Encontrados](#problemas-encontrados)
 * [Organización del equipo](#formas-de-organización-del-equipo)
+
 
 # Proyecto Ingeniería de Software
 
