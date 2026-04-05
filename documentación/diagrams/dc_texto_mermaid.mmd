@@ -1,0 +1,69 @@
+classDiagram
+
+class DBConfigSingleton {
+  - instance : DBConfigSingleton
+  - dbUrl : String
+  - user : String
+  - pass : String
+  - driver : String
+
+  + getInstance() : DBConfigSingleton
+  + openConnection() : void
+  + closeConnection() : void
+  + getDbUrl() : String
+  + getUser() : String
+  + getPass() : String
+  + getDriver() : String
+}
+
+class Model {
+  <<library>>
+}
+
+class Person {
+  + Person()
+  + getDni() : Integer
+  + setDni(dni : Integer) : void
+  + getFirstName() : String
+  + setFirstName(name : String) : void
+  + getLastName() : String
+  + setLastName(lastName : String) : void
+}
+
+class Teacher {
+  + Teacher()
+  + getEmail() : String
+  + setEmail(email : String) : void
+  + getDegree() : String
+  + setDegree(degree : String) : void
+  + getDni() : Integer
+  + setDni(dni : Integer) : void
+}
+
+class User {
+  + User()
+  + getName() : String
+  + setName(name : String) : void
+  + getPassword() : String
+  + setPassword(password : String) : void
+}
+
+class App {
+  + App()
+  + main(args : String[]) : void
+}
+
+%% HERENCIA
+Model <|-- Person
+Model <|-- Teacher
+Model <|-- User
+
+%% RELACIONES
+Person "1" --> "0..1" Teacher
+Person "1" --> "0..1" User
+App "1" --> "1" DBConfigSingleton
+
+%% DEPENDENCIAS
+App --> User
+App --> Teacher
+App --> Person
