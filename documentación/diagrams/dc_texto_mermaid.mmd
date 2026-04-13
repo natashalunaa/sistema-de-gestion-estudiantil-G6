@@ -33,14 +33,17 @@ class Persona {
   Apellido
   Nombre
   Nro_Contacto
+  Mail
 }
 
 class Docente {
   Nro_Legajo
+  Título
 }
 
 class Alumno {
   Tipo_Alumno : TAlumn
+  + Rendimiento():
 }
 
 class Examen_Final {
@@ -70,11 +73,6 @@ class Carrera {
   Cod_Carrera
 }
 
-class Rendimiento {
-  Promedio
-  Fecha
-}
-
 class Correlatividad {
   correl : TCorrel
 }
@@ -95,8 +93,6 @@ Examen_Final .. "0..*" Materia
 
 %%RELACIONES PLAN DE ESTUDIO
 Alumno"1..*" -- "1..*" Plan_Estudio
-Alumno"1..*" .. Rendimiento
-Rendimiento .. "1..*"Plan_Estudio
 Materia"1..*" --o "1..*"Plan_Estudio
 Plan_Estudio "0..*"--"1" Carrera : Tuvo
 Plan_Estudio "0..*"-- "1"Carrera : Vigente
