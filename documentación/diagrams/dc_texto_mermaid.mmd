@@ -1,69 +1,109 @@
 classDiagram
 
-class DBConfigSingleton {
-  - instance : DBConfigSingleton
-  - dbUrl : String
-  - user : String
-  - pass : String
-  - driver : String
-
-  + getInstance() : DBConfigSingleton
-  + openConnection() : void
-  + closeConnection() : void
-  + getDbUrl() : String
-  + getUser() : String
-  + getPass() : String
-  + getDriver() : String
+%% ENUMS
+class TCorrel {
+  <<enumeration>>
+  Aprobado
+  Regular
 }
 
-class Model {
-  <<library>>
+class TAlumn {
+  <<enumeration>>
+  Ingresante
+  Avanzado
 }
 
-class Person {
-  + Person()
-  + getDni() : Integer
-  + setDni(dni : Integer) : void
-  + getFirstName() : String
-  + setFirstName(name : String) : void
-  + getLastName() : String
-  + setLastName(lastName : String) : void
+class TCargo {
+  <<enumeration>>
+  Jefe_Practico
+  Ayudante
 }
 
-class Teacher {
-  + Teacher()
-  + getEmail() : String
-  + setEmail(email : String) : void
-  + getDegree() : String
-  + setDegree(degree : String) : void
-  + getDni() : Integer
-  + setDni(dni : Integer) : void
+class TPer {
+  <<enumeration>>
+  Bimestre
+  Trimestre
+  Cuatrimestre
+  Anual
 }
 
-class User {
-  + User()
-  + getName() : String
-  + setName(name : String) : void
-  + getPassword() : String
-  + setPassword(password : String) : void
+%% CLASES
+class Persona {
+  DNI
+  Apellido
+  Nombre
+  Nro_Contacto
 }
 
-class App {
-  + App()
-  + main(args : String[]) : void
+class Docente {
+  Nro_Legajo
+}
+
+class Alumno {
+  Tipo_Alumno : TAlumn
+}
+
+class Examen_Final {
+  Fecha
+  Nota
+}
+
+class Periodo {
+  Fecha_Inicio
+  Fecha_Fin
+  Cargo : TCargo
+  Type_Periodo : TPer
+}
+
+class Materia {
+  Cod_Materia
+  Num_Materia
+}
+
+class Plan_Estudio {
+  Año
+  Cod_Plan
+}
+
+class Carrera {
+  Nombre_Carrera
+  Cod_Carrera
+}
+
+class Rendimiento {
+  Promedio
+  Fecha
+}
+
+class Correlatividad {
+  correl : TCorrel
 }
 
 %% HERENCIA
-Model <|-- Person
-Model <|-- Teacher
-Model <|-- User
+Persona <|-- Docente
+Persona <|-- Alumno
 
-%% RELACIONES
-Person "1" --> "0..1" Teacher
-Person "1" --> "0..1" User
-App "1" --> "1" DBConfigSingleton
+%%RELACIONES DOCENTE MATERIA PERIODO
+Docente "1" -- "0..*" Materia : Responsable
+Docente "1..*".. Periodo
+Periodo .. "1..*"Materia
 
-%% DEPENDENCIAS
-App --> User
-App --> Teacher
-App --> Person
+%%RELACIONES ALUMNO MATERIA EXAMEN FINAL
+Alumno "0..*"--"0..*" Materia
+Alumno "0..*".. Examen_Final : Rindio
+Examen_Final .. "0..*" Materia
+
+%%RELACIONES PLAN DE ESTUDIO
+Alumno"1..*" -- "1..*" Plan_Estudio
+Alumno"1..*" .. Rendimiento
+Rendimiento .. "1..*"Plan_Estudio
+Materia"1..*" --o "1..*"Plan_Estudio
+Plan_Estudio "0..*"--"1" Carrera : Tuvo
+Plan_Estudio "0..*"-- "1"Carrera : Vigente
+
+%%RELACIONES DE MATERIA
+Materia "0..*"--"0..*" Materia
+Materia .. Correlatividad
+Correlatividad .. Materia
+
+
