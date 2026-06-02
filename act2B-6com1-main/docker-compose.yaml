@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    container_name: miapp
+    ports:
+      - "8505:8080"
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    restart: unless-stopped
