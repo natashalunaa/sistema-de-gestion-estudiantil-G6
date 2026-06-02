@@ -7,7 +7,6 @@ public final class DBConfigSingleton {
 
     private static DBConfigSingleton instance;
 
-    // Ya no es necesario que sean final si los vas a configurar dinámicamente o mantener una sola instancia
     private final String dbUrl;
     private final String user;
     private final String pass;
@@ -15,11 +14,24 @@ public final class DBConfigSingleton {
 
     // Constructor privado para evitar instanciación directa
     private DBConfigSingleton() {
-        // Configuraciones para SQLite
-        this.driver = "org.sqlite.JDBC"; // Driver JDBC para SQLite
-        this.dbUrl = System.getProperty("db.url", "jdbc:sqlite:./db/dev.db");
-        this.user = ""; // SQLite no usa usuario
-        this.pass = ""; // SQLite no usa contraseña
+        String pgHost = System.getenv("POSTGRES_HOST");
+        String pgPort = System.getenv("POSTGRES_PORT");
+        String pgUser = System.getenv("POSTGRES_USER");
+        String pgPass = System.getenv("POSTGRES_PASSWORD");
+        String pgDb = System.getenv("POSTGRES_DB");
+
+        if (pgHost != null && !pgHost.isBlank() && pgDb != null && !pgDb.isBlank()) {
+            this.driver = "org.postgresql.Driver";
+            String port = (pgPort == null || pgPort.isBlank()) ? "5432" : pgPort;
+            this.dbUrl = String.format("jdbc:postgresql://%s:%s/%s", pgHost, port, pgDb);
+            this.user = (pgUser == null || pgUser.isBlank()) ? "postgres" : pgUser;
+            this.pass = (pgPass == null) ? "" : pgPass;
+        } else {
+            this.driver = "org.sqlite.JDBC"; // Driver JDBC para SQLite
+            this.dbUrl = System.getProperty("db.url", "jdbc:sqlite:./db/dev.db");
+            this.user = ""; // SQLite no usa usuario
+            this.pass = ""; // SQLite no usa contraseña
+        }
     }
 
     public static synchronized DBConfigSingleton getInstance() {
@@ -31,7 +43,6 @@ public final class DBConfigSingleton {
 
     // Métodos para abrir y cerrar la conexión
     public void openConnection() {
-        // Utiliza los valores de las propiedades de la clase para abrir la conexión
         Base.open(this.driver, this.dbUrl, this.user, this.pass);
     }
 

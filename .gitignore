@@ -1,0 +1,10 @@
+# Carpeta donde se guardan los datos de Postgres
+postgres-data/
+
+# Archivos de Docker
+*.log
+.env
+
+# Node / Python / otros (opcional según tu stack)
+node_modules/
+__pycache__/

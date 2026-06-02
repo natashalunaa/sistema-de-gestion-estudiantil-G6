@@ -2,10 +2,12 @@ services:
   postgres:
     image: postgres:17-alpine # Usa una imagen ligera de PostgreSQL
     container_name: postgres # Nombre del contenedor
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: postgres # Usuario por defecto
-      POSTGRES_PASSWORD: password # Contraseña de PostgreSQL
-      POSTGRES_DB: student_management # Nombre de la base de datos
+      - POSTGRES_USER=${POSTGRES_USER:-postgres} # Usuario por defecto
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password} # Contraseña de PostgreSQL
+      - POSTGRES_DB=${POSTGRES_DB:-student_management} # Nombre de la base de datos
     ports:
       - "5432:5432" # Mapea el puerto 5432 del contenedor al puerto 5432 de tu máquina local
     volumes:
@@ -13,11 +15,13 @@ services:
       - ./init:/docker-entrypoint-initdb.d # Monta el directorio de inicialización para ejecutar scripts SQL al iniciar el contenedor
     restart: unless-stopped # Reinicia el contenedor a menos que se detenga manualmente
     networks:
-      - external # Conecta el contenedor a la red interna
+      - internal # Conecta el contenedor a la red interna
 
   app:
     build: . # Asegúrate de que el Dockerfile esté en el mismo directorio que este docker-compose.yaml
     container_name: miapp # Nombre del contenedor
+    env_file:
+      - .env
     ports:
       - "8505:8080" # Mapea el puerto 8080 del contenedor al puerto 8505 de tu máquina local
     environment:

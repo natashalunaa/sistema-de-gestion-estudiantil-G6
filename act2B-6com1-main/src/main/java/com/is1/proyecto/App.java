@@ -44,7 +44,8 @@ public class App {
      * Aquí se configuran todas las rutas y filtros de Spark.
      */
     public static void main(String[] args) {
-        port(8080); // Configura el puerto en el que la aplicación Spark escuchará las peticiones
+        String appPort = System.getenv("APP_PORT");
+        port(appPort != null && !appPort.isBlank() ? Integer.parseInt(appPort) : 8080); // Configura el puerto en el que la aplicación Spark escuchará las peticiones
                     // (por defecto es 4567).
 
         // Obtener la instancia única del singleton de configuración de la base de
@@ -58,7 +59,9 @@ public class App {
                 // Abre una conexión a la base de datos utilizando las credenciales del
                 // singleton.
                 Base.open(dbConfig.getDriver(), dbConfig.getDbUrl(), dbConfig.getUser(), dbConfig.getPass());
-                Base.exec("PRAGMA foreign_keys = ON;"); // para activar la foreign key
+                if ("org.sqlite.JDBC".equals(dbConfig.getDriver())) {
+                    Base.exec("PRAGMA foreign_keys = ON;"); // para activar la foreign key solo en SQLite
+                }
                 System.out.println(req.url());
 
             } catch (Exception e) {
