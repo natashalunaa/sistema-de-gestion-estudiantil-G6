@@ -1,9 +1,36 @@
 services:
-  app:
-    build: .
-    container_name: miapp
-    ports:
-      - "8505:8080"
+  postgres:
+    image: postgres:17-alpine # Usa una imagen ligera de PostgreSQL
+    container_name: postgres # Nombre del contenedor
     environment:
-      - JAVA_OPTS=-Xms256m -Xmx512m
-    restart: unless-stopped
+      POSTGRES_USER: postgres # Usuario por defecto
+      POSTGRES_PASSWORD: password # Contraseña de PostgreSQL
+      POSTGRES_DB: student_management # Nombre de la base de datos
+    ports:
+      - "5432:5432" # Mapea el puerto 5432 del contenedor al puerto 5432 de tu máquina local
+    volumes:
+      - ./../postgres-data:/var/lib/postgresql/data # Monta un volumen para persistencia de datos
+      - ./init:/docker-entrypoint-initdb.d # Monta el directorio de inicialización para ejecutar scripts SQL al iniciar el contenedor
+    restart: unless-stopped # Reinicia el contenedor a menos que se detenga manualmente
+    networks:
+      - external # Conecta el contenedor a la red interna
+
+  app:
+    build: . # Asegúrate de que el Dockerfile esté en el mismo directorio que este docker-compose.yaml
+    container_name: miapp # Nombre del contenedor
+    ports:
+      - "8505:8080" # Mapea el puerto 8080 del contenedor al puerto 8505 de tu máquina local
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m # Ajusta la memoria según las necesidades de tu aplicación
+    depends_on:
+      - postgres # Asegura que la aplicación se inicie después de que PostgreSQL esté listo
+    restart: unless-stopped # Reinicia el contenedor a menos que se detenga manualmente
+    networks:
+      - internal # Conecta el contenedor a la red interna para comunicación con PostgreSQL
+      - external # Conecta el contenedor a la red externa para comunicación con el host
+
+networks: # Define las redes para los contenedores
+  internal:
+    internal: true # Red privada para la comunicación entre contenedores
+  external:
+    internal: false # Red publica para la comunicación con el host
