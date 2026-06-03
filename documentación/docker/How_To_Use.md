@@ -88,7 +88,16 @@ sudo usermod -aG docker $USER
 
 Cerrar sesión y volver a entrar.
 
-## 11. Comandos útiles
+## 11. Para desarrollar la app (no usar en produccion)
+Si estas desarrollando la app, puedes usar el comando
+
+```bash
+docker compose -f docker-compose.dev.yaml up
+```
+
+el cual activa el 'hot reload' dentro del contenedor 'miapp'
+
+## 12. Comandos útiles
 | Acción | Comando |
 | :----- | :------ |
 | Ver contenedores activos | docker ps |
