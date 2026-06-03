@@ -95,7 +95,7 @@ Si estas desarrollando la app, puedes usar el comando
 docker compose -f docker-compose.dev.yaml up
 ```
 
-el cual activa el 'hot reload' dentro del contenedor 'miapp'
+el cual se debe correr cada vez que se realiza un cambio en la app
 
 ## 12. Comandos útiles
 | Acción | Comando |
