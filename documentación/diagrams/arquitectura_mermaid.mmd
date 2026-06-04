@@ -1,0 +1,16 @@
+architecture-beta
+    group api(cloud)[Docker]
+
+    service web(internet)[Cliente]
+
+    service bottom_gateway(cloud)[API] in api
+    service db(database)[Postgres] in api
+    service disk2(disk)[postgres_data] in api
+    service server(server)[Java Spark] in api
+
+    junction junctionRight
+
+    db:L -- R:server
+    disk2:T -- B:db
+    bottom_gateway:T -- B:server
+    web:R -- L:bottom_gateway
