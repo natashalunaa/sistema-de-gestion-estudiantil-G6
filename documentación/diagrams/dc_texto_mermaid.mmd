@@ -27,6 +27,13 @@ class TPer {
   Anual
 }
 
+class TCond {
+  <<enumeration>>
+  Libre
+  Regular
+  Promocion
+}
+
 %% CLASES
 class Persona {
   DNI
@@ -61,6 +68,7 @@ class Periodo {
 class Materia {
   Cod_Materia
   Num_Materia
+  Cod_inscripcion
 }
 
 class Plan_Estudio {
@@ -74,7 +82,11 @@ class Carrera {
 }
 
 class Correlatividad {
-  correl : TCorrel
+  Correl : TCorrel
+}
+
+class CondicionMateria {
+  Tipo_cond : Tcond
 }
 
 %% HERENCIA
@@ -102,4 +114,7 @@ Materia "0..*"--"0..*" Materia
 Materia .. Correlatividad
 Correlatividad .. Materia
 
-
+%% RELACIONES MATERIA ALUMNO COND_EN_MATERIA
+Alumno"1..*" -- "1..*" Materia
+Alumno .. COND_EN_MATERIA
+COND_EN_MATERIA .. Materia
