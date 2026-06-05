@@ -11,20 +11,22 @@ import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.LazyList;
 import org.mindrot.jbcrypt.BCrypt;
 
-import com.fasterxml.jackson.databind.ObjectMapper; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
-import com.is1.proyecto.config.DBConfigSingleton; // Clase central de ActiveJDBC para gestionar la conexión a la base de datos.
-import com.is1.proyecto.models.Person;
-import com.is1.proyecto.models.Teacher; // Utilidad para hashear y verificar contraseñas de forma segura.
-import com.is1.proyecto.models.User; // Representa un modelo de datos y el nombre de la vista a renderizar.
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.is1.proyecto.config.DBConfigSingleton; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
+import com.is1.proyecto.models.Alumno; // Clase central de ActiveJDBC para gestionar la conexión a la base de datos.
+import com.is1.proyecto.models.Docente;
+import com.is1.proyecto.models.Persona;
+import com.is1.proyecto.models.User;
 
-import spark.ModelAndView; // Motor de plantillas Mustache para Spark.
-import static spark.Spark.after;
-import static spark.Spark.before;
-import static spark.Spark.get; // Para crear mapas de datos (modelos para las plantillas).
-import static spark.Spark.halt; // Interfaz Map, utilizada para Map.of() o HashMap.
-import static spark.Spark.port; // Clase Singleton para la configuración de la base de datos.
-import static spark.Spark.post; // Modelo de ActiveJDBC que representa la tabla 'users'.
-import spark.template.mustache.MustacheTemplateEngine;
+import spark.ModelAndView;
+import spark.Request; // Utilidad para hashear y verificar contraseñas de forma segura.
+import static spark.Spark.after; // Representa un modelo de datos y el nombre de la vista a renderizar.
+import static spark.Spark.before; // Motor de plantillas Mustache para Spark.
+import static spark.Spark.get;
+import static spark.Spark.halt;
+import static spark.Spark.port;
+import static spark.Spark.post;
+import spark.template.mustache.MustacheTemplateEngine; // Para crear mapas de datos (modelos para las plantillas).
 
 /**
  * Clase principal de la aplicación Spark.
@@ -38,6 +40,40 @@ public class App {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
             Pattern.CASE_INSENSITIVE);
+
+
+    //Definición de constantes para los roles de los tipos de usuarios
+    public static final String ROLE_ADMIN = "admin";
+    public static final String ROLE_TEACHER = "teacher";
+    public static final String ROLE_STUDENT = "student";
+
+    private static String resolveRole(User user){
+         User firstUser = User.findFirst("1=1 ORDER BY id ASC");
+        if (firstUser != null && user.getId().equals(firstUser.getId())) {
+            return ROLE_ADMIN;
+        }
+
+        String username = user.getString("name");
+        Persona persona = Persona.findFirst("mail = ? OR dni = ?", username, username);
+        if (persona != null) {
+            if (Docente.findById(persona.getDni()) != null) {
+                return ROLE_TEACHER;
+            }
+            if (Alumno.findById(persona.getDni()) != null) {
+                return ROLE_STUDENT;
+            }
+        }
+        return ROLE_STUDENT;
+    }
+
+    private static boolean isAuthenticated(Request req){
+        Boolean loggedIn = req.session().attribute("loggedIn");
+        return loggedIn != null && loggedIn;
+    }
+
+    private static boolean isAdmin(Request req){
+        return ROLE_ADMIN.equals(req.session().attribute("role"));
+    }
 
     /**
      * Método principal que se ejecuta al iniciar la aplicación.
@@ -186,102 +222,85 @@ public class App {
 
         // POST: Maneja el envío del formulario de creación de nueva cuenta.
         post("/user/new", (req, res) -> {
-            String name = req.queryParams("name");
+           String name = req.queryParams("name");
             String password = req.queryParams("password");
 
-            // Validaciones básicas: campos no pueden ser nulos o vacíos.
             if (name == null || name.isEmpty() || password == null || password.isEmpty()) {
-                res.status(400); // Código de estado HTTP 400 (Bad Request).
-                // Redirige al formulario de creación con un mensaje de error.
                 res.redirect("/user/create?error=Nombre y contraseña son requeridos.");
-                return ""; // Retorna una cadena vacía ya que la respuesta ya fue redirigida.
+                return "";
+            }
+
+            if (User.findFirst("name = ?", name) != null) {
+                res.redirect("/user/create?error=El nombre de usuario ya existe.");
+                return "";
             }
 
             try {
-                // Intenta crear y guardar la nueva cuenta en la base de datos.
-                User ac = new User(); // Crea una nueva instancia del modelo User.
-                // Hashea la contraseña de forma segura antes de guardarla.
-                String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+                long countUsers = User.count();
+                User newUser = new User();
+                newUser.set("name", name);
+                newUser.set("password", BCrypt.hashpw(password, BCrypt.gensalt()));
+                newUser.insert();
 
-                ac.set("name", name); // Asigna el nombre de usuario.
-                ac.set("password", hashedPassword); // Asigna la contraseña hasheada.
-                ac.saveIt(); // Guarda el nuevo usuario en la tabla 'users'.
+                String message = countUsers == 0
+                        ? "Cuenta de administrador '" + name + "' creada con éxito."
+                        : "Cuenta de estudiante '" + name + "' creada con éxito.";
 
-                res.status(201); // Código de estado HTTP 201 (Created) para una creación exitosa.
-                // Redirige al formulario de creación con un mensaje de éxito.
-                res.redirect("/user/create?message=Cuenta creada exitosamente para " + name + "!");
-                return ""; // Retorna una cadena vacía.
-
+                res.redirect("/?message=" + java.net.URLEncoder.encode(message, "UTF-8"));
+                return "";
             } catch (Exception e) {
-                // Si ocurre cualquier error durante la operación de DB (ej. nombre de usuario
-                // duplicado),
-                // se captura aquí y se redirige con un mensaje de error.
                 System.err.println("Error al registrar la cuenta: " + e.getMessage());
-                e.printStackTrace(); // Imprime el stack trace para depuración.
-                res.status(500); // Código de estado HTTP 500 (Internal Server Error).
-                res.redirect("/user/create?error=Error interno al crear la cuenta. Intente de nuevo.");
-                return ""; // Retorna una cadena vacía.
+                res.redirect("/user/create?error=Error interno al crear la cuenta.");
+                return "";
             }
         });
 
+        get("/login", (req, res) -> {
+            Map<String, Object> model = new HashMap<>();
+            String errorMessage = req.queryParams("error");
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                model.put("errorMessage", errorMessage);
+            }
+            String successMessage = req.queryParams("message");
+            if (successMessage != null && !successMessage.isEmpty()) {
+                model.put("successMessage", successMessage);
+            }
+            return new ModelAndView(model, "login.mustache");
+        }, new MustacheTemplateEngine());
+
         // POST: Maneja el envío del formulario de inicio de sesión.
         post("/login", (req, res) -> {
-            Map<String, Object> model = new HashMap<>(); // Modelo para la plantilla de login o dashboard.
-
-            String username = req.queryParams("username");
+             String username = req.queryParams("username");
             String plainTextPassword = req.queryParams("password");
 
-            // Validaciones básicas: campos de usuario y contraseña no pueden ser nulos o
-            // vacíos.
             if (username == null || username.isEmpty() || plainTextPassword == null || plainTextPassword.isEmpty()) {
-                res.status(400); // Bad Request.
-                model.put("errorMessage", "El nombre de usuario y la contraseña son requeridos.");
-                return new ModelAndView(model, "login.mustache"); // Renderiza la plantilla de login con error.
+                res.redirect("/?error=El nombre de usuario y la contraseña son requeridos.");
+                return null;
             }
 
-            // Busca la cuenta en la base de datos por el nombre de usuario.
             User ac = User.findFirst("name = ?", username);
-
-            // Si no se encuentra ninguna cuenta con ese nombre de usuario.
-            if (ac == null) {
-                res.status(401); // Unauthorized.
-                model.put("errorMessage", "Usuario o contraseña incorrectos."); // Mensaje genérico por seguridad.
-                return new ModelAndView(model, "login.mustache"); // Renderiza la plantilla de login con error.
+            if (ac == null || !BCrypt.checkpw(plainTextPassword, ac.getString("password"))) {
+                res.redirect("/?error=Usuario o contraseña incorrectos.");
+                return null;
             }
 
-            // Obtiene la contraseña hasheada almacenada en la base de datos.
-            String storedHashedPassword = ac.getString("password");
+            String role = resolveRole(ac);
+            req.session(true).attribute("role", role);
+            req.session().attribute("currentUserUsername", username);
+            req.session().attribute("userId", ac.getId());
+            req.session().attribute("loggedIn", true);
 
-            // Compara la contraseña en texto plano ingresada con la contraseña hasheada
-            // almacenada.
-            // BCrypt.checkpw hashea la plainTextPassword con el salt de
-            // storedHashedPassword y compara.
-            if (BCrypt.checkpw(plainTextPassword, storedHashedPassword)) {
-                // Autenticación exitosa.
-                res.status(200); // OK.
-
-                // --- Gestión de Sesión ---
-                req.session(true).attribute("currentUserUsername", username); // Guarda el nombre de usuario en la
-                                                                              // sesión.
-                req.session().attribute("userId", ac.getId()); // Guarda el ID de la cuenta en la sesión (útil).
-                req.session().attribute("loggedIn", true); // Establece una bandera para indicar que el usuario está
-                                                           // logueado.
-
-                System.out.println("DEBUG: Login exitoso para la cuenta: " + username);
-                System.out.println("DEBUG: ID de Sesión: " + req.session().id());
-
-                model.put("username", username); // Añade el nombre de usuario al modelo para el dashboard.
-                // Renderiza la plantilla del dashboard tras un login exitoso.
-                return new ModelAndView(model, "dashboard.mustache");
+          
+            if (ROLE_ADMIN.equals(role)) {
+                res.redirect("/dashboard/admin");
+            } else if (ROLE_TEACHER.equals(role)) {
+                res.redirect("/dashboard/teacher");
             } else {
-                // Contraseña incorrecta.
-                res.status(401); // Unauthorized.
-                System.out.println("DEBUG: Intento de login fallido para: " + username);
-                model.put("errorMessage", "Usuario o contraseña incorrectos."); // Mensaje genérico por seguridad.
-                return new ModelAndView(model, "login.mustache"); // Renderiza la plantilla de login con error.
+                res.redirect("/dashboard/student");
             }
-        }, new MustacheTemplateEngine()); // Especifica el motor de plantillas para esta ruta POST.
-
+            return null;
+        });
+                    
         // POST: Endpoint para añadir usuarios (API que devuelve JSON, no HTML).
         // Advertencia: Esta ruta tiene un propósito diferente a las de formulario HTML.
         post("/add_users", (req, res) -> {
@@ -308,7 +327,7 @@ public class App {
                 // ruta '/user/new').
                 newUser.set("name", name); // Asigna el nombre al campo 'name'.
                 newUser.set("password", password); // Asigna la contraseña al campo 'password'.
-                newUser.saveIt(); // Guarda el nuevo usuario en la tabla 'users'.
+                newUser.insert(); // Guarda el nuevo usuario en la tabla 'users'.
 
                 res.status(201); // Created.
                 // Devuelve una respuesta JSON con el mensaje y el ID del nuevo usuario.
@@ -367,9 +386,11 @@ public class App {
             String apellido = req.queryParams("apellido");
             String mail = req.queryParams("mail");
             String titulo = req.queryParams("titulo");
+            String legajo = req.queryParams("nro_legajo");
+            String password = req.queryParams("password");
 
-            if (dni == null || nombre == null || apellido == null || mail == null || titulo == null ||
-                    dni.isEmpty() || nombre.isEmpty() || apellido.isEmpty() || mail.isEmpty() || titulo.isEmpty()) {
+            if (dni == null || nombre == null || apellido == null || mail == null || titulo == null || legajo == null || password == null ||
+                    dni.isEmpty() || nombre.isEmpty() || apellido.isEmpty() || mail.isEmpty() || titulo.isEmpty() || legajo.isEmpty() || password.isEmpty()) {
                 model.put("errorMessage", "Todos los campos son obligatorios.");
                 return new ModelAndView(model, "teacher_form.mustache");
             }
@@ -380,19 +401,40 @@ public class App {
                 return new ModelAndView(model, "teacher_form.mustache");
             }
 
+              if (Persona.findById(dni) != null) {
+                model.put("errorMessage", "Ya existe un usuario registrado con ese DNI.");
+                return new ModelAndView(model, "teacher_form.mustache");
+            }
+
+            if (Persona.findFirst("mail = ?", mail) != null) {
+                model.put("errorMessage", "Ya existe un usuario registrado con ese mail.");
+                return new ModelAndView(model, "teacher_form.mustache");
+            }
+
+            if (User.findFirst("name = ?", mail) != null) {
+                model.put("errorMessage", "Ya existe un usuario con ese nombre de usuario.");
+                return new ModelAndView(model, "teacher_form.mustache");
+            }
+
             // Guardar en la BD
             try {
-                Person m = new Person();
-                m.setDNI(Integer.valueOf(dni));
-                m.setFirstName(nombre);
-                m.setLastName(apellido);
+                Persona m = new Persona();
+                m.setDni(dni);
+                m.setNombre(nombre);
+                m.setApellido(apellido);
+                m.setMail(mail);
                 m.insert();
 
-                Teacher t = new Teacher();
-                t.setEmail(mail);
-                t.setDegree(titulo);
-                t.setDni(Integer.valueOf(dni));
+                Docente t = new Docente();
+                t.setDni(dni);
+                t.setNroLegajo(legajo);
+                t.setTitulo(titulo);
                 t.insert();
+
+                User newUser = new User();
+                newUser.set("name", mail);
+                newUser.set("password", BCrypt.hashpw(password, BCrypt.gensalt()));
+                newUser.insert();
             } catch (Exception e) {
                 e.printStackTrace();
                 // res.status(500);
@@ -412,6 +454,11 @@ public class App {
             String currentUsername = req.session().attribute("currentUserUsername");
             Boolean loggedIn = req.session().attribute("loggedIn");
 
+            if (!isAuthenticated(req) || !isAdmin(req)) {
+                res.redirect("/?error=No autorizado");
+                return null;
+            }
+
             // 1. Verificar si el usuario ha iniciado sesión.
             // Si no hay un nombre de usuario en la sesión, la bandera es nula o falsa,
             // significa que el usuario no está logueado o su sesión expiró.
@@ -426,21 +473,192 @@ public class App {
 
             List<Map<String, Object>> teachersList = new ArrayList<>();
 
-            LazyList<Teacher> teachers = Teacher.findAll();
-            for (Teacher teacher : teachers) {
-                Person person = Person.findById(teacher.getId());
-                Map<String, Object> t = new HashMap<>();
-                t.put("dni", person.getDNI());
-                t.put("nombre", person.getFirstName());
-                t.put("apellido", person.getLastName());
-                t.put("mail", teacher.getEmail());
-                t.put("titulo", teacher.getDegree());
-                teachersList.add(t);
-            }
+            LazyList<Docente> docentes = Docente.findAll();
+              for (Docente d : docentes) {
+                Persona p = Persona.findById(d.getDni());
+                Map<String, Object> row = new HashMap<>();
+                row.put("dni", d.getDni());
+                row.put("nombre", p != null ? p.getNombre() : "");
+                row.put("apellido", p != null ? p.getApellido() : "");
+                row.put("mail", p != null ? p.getMail() : "");
+                row.put("nro_legajo", d.getNroLegajo());
+                row.put("titulo", d.getTitulo());
+                teachersList.add(row);
+                }
 
             model.put("teachers", teachersList);
             return new ModelAndView(model, "teacher_list.mustache");
         }, new MustacheTemplateEngine());
+
+
+        //RUTAS
+        //Rutas dependientes de cada rol (ej. admin_dashboard.mustache, teacher_dashboard.mustache, student_dashboard.mustache) y sus funcionalidades asociadas.
+        //Dashboard de admin
+        get("/dashboard/admin", (req, res) -> {
+            if (!isAuthenticated(req) || !isAdmin(req)) {
+                res.redirect("/?error=Acceso denegado.");
+                return null;
+            }
+            Map<String, Object> model = new HashMap<>();
+            model.put("username", req.session().attribute("currentUserUsername"));
+            return new ModelAndView(model, "admin_dashboard.mustache");
+        }, new MustacheTemplateEngine());
+
+        //Dashboard de teacher
+         get("/dashboard/teacher", (req, res) -> {
+            if (!isAuthenticated(req)) {
+                res.redirect("/?error=Acceso denegado.");
+                return null;
+            }
+            Map<String, Object> model = new HashMap<>();
+            model.put("username", req.session().attribute("currentUserUsername"));
+            return new ModelAndView(model, "teacher_dashboard.mustache");
+        }, new MustacheTemplateEngine());
+        
+         //Dashboard de student
+           get("/dashboard/student", (req, res) -> {
+            if (!isAuthenticated(req)) {
+                res.redirect("/?error=Acceso denegado.");
+                return null;
+            }
+            Map<String, Object> model = new HashMap<>();
+            model.put("username", req.session().attribute("currentUserUsername"));
+            return new ModelAndView(model, "student_dashboard.mustache");
+        }, new MustacheTemplateEngine());
+
+
+            //PROTECCIONES
+            //Protecciones del estilo "before" para rutas privilegiadas
+            before("/teacher/*", (req, res) -> {
+                if (!isAuthenticated(req) || !isAdmin(req)) {
+                        res.redirect("/?error=No autorizado");
+                        halt(401);
+                    }   
+                });
+            before("/teachers", (req, res) -> {
+                if (!isAuthenticated(req) || !isAdmin(req)) {
+                         res.redirect("/?error=No autorizado");
+                        halt(401);
+                     }
+                });
+
+            before("/student/*", (req, res) -> {
+                if (!isAuthenticated(req) || !isAdmin(req)) {
+                 res.redirect("/?error=No autorizado");
+                    halt(401);
+                 }
+                });
+
+            before("/students", (req, res) -> {
+                 if (!isAuthenticated(req) || !isAdmin(req)) {
+                    res.redirect("/?error=No autorizado");
+                    halt(401);
+                }
+            });
+
+
+            //CREACION Y MANJEO DE ESTUDIANTES
+            get("/student/new", (req, res) -> {
+                return new ModelAndView(new HashMap<>(), "student_form.mustache");
+            }, new MustacheTemplateEngine());
+
+            post("/student/new",(req,res)->{
+                String nombre = req.queryParams("nombre");
+                String apellido = req.queryParams("apellido");
+                String password = req.queryParams("password");
+                String dni = req.queryParams("dni");
+                String mail = req.queryParams("mail");
+                String tipo_alumno= req.queryParams("tipo_alumno");
+
+                Map<String, Object> model = new HashMap<>();
+                if (nombre == null || apellido == null || password == null || dni == null || mail == null || tipo_alumno == null ||
+                    nombre.isEmpty() || apellido.isEmpty() || password.isEmpty() || dni.isEmpty() || mail.isEmpty() || tipo_alumno.isEmpty()) {
+                    model.put("errorMessage", "Todos los campos son obligatorios.");
+                    return new ModelAndView(model, "student_form.mustache");
+                }
+                
+                  if (Persona.findById(dni) != null) {
+                    model.put("errorMessage", "Ya existe un alumno con ese DNI.");
+                    return new ModelAndView(model, "student_form.mustache");
+                }
+
+                if (Persona.findFirst("mail = ?", mail) != null) {
+                    model.put("errorMessage", "Ya existe un alumno con ese mail.");
+                    return new ModelAndView(model, "student_form.mustache");
+                }
+
+                if (User.findFirst("name = ?", mail) != null) {
+                    model.put("errorMessage", "Ya existe un usuario con ese nombre de usuario.");
+                    return new ModelAndView(model, "student_form.mustache");
+                }
+                try {
+                    Persona p = new Persona();
+                    p.setDni(dni);
+                    p.setNombre(nombre);
+                    p.setApellido(apellido);
+                    p.setMail(mail);
+                    
+                    
+                    if (!p.insert()){
+                        throw new Exception("Error al guardar la persona: " + p.errors());
+                    }
+                                        
+                    Base.exec("INSERT INTO alumno (dni, tipo_alumno) VALUES (?, ?::talumn)", dni, tipo_alumno);
+
+                    User newUser = new User();
+                    newUser.setName(mail); // Usamos el mail como nombre de usuario para login
+                    newUser.setPassword(BCrypt.hashpw(password, BCrypt.gensalt())); // Has
+                    newUser.insert();
+
+
+                } catch (Exception e) {
+                    model.put("errorMessage", "Error al guardar al nuevo estudiante: " + e.getMessage());
+                    return new ModelAndView(model, "student_form.mustache");
+                }
+                res.redirect("/students");
+                return null;
+            }, new MustacheTemplateEngine());
+
+
+            //Listado de estudiantes
+            get("/students", (req, res) -> {
+            String currentUsername = req.session().attribute("currentUserUsername");
+            Boolean loggedIn = req.session().attribute("loggedIn");
+
+
+            if (!isAuthenticated(req) || !isAdmin(req)) {
+                res.redirect("/?error=No autorizado");
+                return null;
+            }
+
+            
+            if (currentUsername == null || loggedIn == null || !loggedIn) {
+                System.out.println("DEBUG: Acceso no autorizado a /dashboard. Redirigiendo a /login.");
+                // Redirige al login con un mensaje de error.
+                res.redirect("/login?error=Debes iniciar sesión para acceder a esta página.");
+                return null; // Importante retornar null después de una redirección.
+            }
+
+            Map<String, Object> model = new HashMap<>();
+
+            List<Map<String, Object>> studentsList = new ArrayList<>();
+            LazyList<Alumno> alumnos = Alumno.findAll();
+             for (Alumno a : alumnos) {
+                Persona p = Persona.findById(a.getDni());
+                Map<String, Object> row = new HashMap<>();
+                row.put("dni", a.getDni());
+                row.put("nombre", p != null ? p.getNombre() : "");
+                row.put("apellido", p != null ? p.getApellido() : "");
+                row.put("mail", p != null ? p.getMail() : "");
+                row.put("tipo_alumno", a.getTipoAlumno());
+                studentsList.add(row);
+            }
+
+            model.put("students", studentsList);
+            return new ModelAndView(model, "student_list.mustache");
+        }, new MustacheTemplateEngine());
+         
+
 
         // Solo para regenerar la db
         /*get("/impl_db_dev", (req, res) -> {
