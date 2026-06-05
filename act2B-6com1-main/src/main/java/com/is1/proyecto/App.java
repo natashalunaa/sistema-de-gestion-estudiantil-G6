@@ -15,9 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.is1.proyecto.config.DBConfigSingleton; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
 import com.is1.proyecto.models.Alumno; // Clase central de ActiveJDBC para gestionar la conexión a la base de datos.
 import com.is1.proyecto.models.Docente;
-import com.is1.proyecto.models.Person;
 import com.is1.proyecto.models.Persona;
-import com.is1.proyecto.models.Teacher;
 import com.is1.proyecto.models.User;
 
 import spark.ModelAndView;
