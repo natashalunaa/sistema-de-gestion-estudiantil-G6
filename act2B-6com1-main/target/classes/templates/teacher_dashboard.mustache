@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Docente - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4">
+    <div class="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl p-8">
+        <h1 class="text-4xl font-bold text-center mb-6">Panel de docente</h1>
+
+        {{#username}}
+        <p class="text-center text-gray-700 mb-8">
+            Bienvenido, <span class="font-semibold text-blue-600">{{username}}</span>.
+        </p>
+        {{/username}}
+
+        <div class="space-y-4">
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                <h2 class="text-2xl font-semibold mb-2">Tus permisos</h2>
+                <p class="text-gray-600">Accede a la información disponible para docentes.</p>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                <h2 class="text-2xl font-semibold mb-2">Próximamente</h2>
+                <p class="text-gray-600">Aquí puedes agregar más acciones específicas para docentes.</p>
+            </div>
+        </div>
+
+        <div class="mt-10 text-center">
+            <a href="/logout"
+               class="inline-block bg-red-600 text-white py-3 px-8 rounded-full hover:bg-red-700">
+                Cerrar sesión
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -15,7 +15,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.is1.proyecto.config.DBConfigSingleton; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
 import com.is1.proyecto.models.Alumno; // Clase central de ActiveJDBC para gestionar la conexión a la base de datos.
 import com.is1.proyecto.models.Docente;
+import com.is1.proyecto.models.Person;
 import com.is1.proyecto.models.Persona;
+import com.is1.proyecto.models.Teacher;
 import com.is1.proyecto.models.User;
 
 import spark.ModelAndView;
@@ -41,14 +43,13 @@ public class App {
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
             Pattern.CASE_INSENSITIVE);
 
-
-    //Definición de constantes para los roles de los tipos de usuarios
+    // Definición de constantes para los roles de los tipos de usuarios
     public static final String ROLE_ADMIN = "admin";
     public static final String ROLE_TEACHER = "teacher";
     public static final String ROLE_STUDENT = "student";
 
-    private static String resolveRole(User user){
-         User firstUser = User.findFirst("1=1 ORDER BY id ASC");
+    private static String resolveRole(User user) {
+        User firstUser = User.findFirst("1=1 ORDER BY id ASC");
         if (firstUser != null && user.getId().equals(firstUser.getId())) {
             return ROLE_ADMIN;
         }
@@ -66,12 +67,12 @@ public class App {
         return ROLE_STUDENT;
     }
 
-    private static boolean isAuthenticated(Request req){
+    private static boolean isAuthenticated(Request req) {
         Boolean loggedIn = req.session().attribute("loggedIn");
         return loggedIn != null && loggedIn;
     }
 
-    private static boolean isAdmin(Request req){
+    private static boolean isAdmin(Request req) {
         return ROLE_ADMIN.equals(req.session().attribute("role"));
     }
 
@@ -81,8 +82,10 @@ public class App {
      */
     public static void main(String[] args) {
         String appPort = System.getenv("APP_PORT");
-        port(appPort != null && !appPort.isBlank() ? Integer.parseInt(appPort) : 8080); // Configura el puerto en el que la aplicación Spark escuchará las peticiones
-        //port(85);
+        port(appPort != null && !appPort.isBlank() ? Integer.parseInt(appPort) : 8080); // Configura el puerto en el que
+                                                                                        // la aplicación Spark escuchará
+                                                                                        // las peticiones
+        // port(85);
 
         // Obtener la instancia única del singleton de configuración de la base de
         // datos.
@@ -222,7 +225,7 @@ public class App {
 
         // POST: Maneja el envío del formulario de creación de nueva cuenta.
         post("/user/new", (req, res) -> {
-           String name = req.queryParams("name");
+            String name = req.queryParams("name");
             String password = req.queryParams("password");
 
             if (name == null || name.isEmpty() || password == null || password.isEmpty()) {
@@ -270,7 +273,7 @@ public class App {
 
         // POST: Maneja el envío del formulario de inicio de sesión.
         post("/login", (req, res) -> {
-             String username = req.queryParams("username");
+            String username = req.queryParams("username");
             String plainTextPassword = req.queryParams("password");
 
             if (username == null || username.isEmpty() || plainTextPassword == null || plainTextPassword.isEmpty()) {
@@ -290,7 +293,6 @@ public class App {
             req.session().attribute("userId", ac.getId());
             req.session().attribute("loggedIn", true);
 
-          
             if (ROLE_ADMIN.equals(role)) {
                 res.redirect("/dashboard/admin");
             } else if (ROLE_TEACHER.equals(role)) {
@@ -300,7 +302,7 @@ public class App {
             }
             return null;
         });
-                    
+
         // POST: Endpoint para añadir usuarios (API que devuelve JSON, no HTML).
         // Advertencia: Esta ruta tiene un propósito diferente a las de formulario HTML.
         post("/add_users", (req, res) -> {
@@ -389,8 +391,10 @@ public class App {
             String legajo = req.queryParams("nro_legajo");
             String password = req.queryParams("password");
 
-            if (dni == null || nombre == null || apellido == null || mail == null || titulo == null || legajo == null || password == null ||
-                    dni.isEmpty() || nombre.isEmpty() || apellido.isEmpty() || mail.isEmpty() || titulo.isEmpty() || legajo.isEmpty() || password.isEmpty()) {
+            if (dni == null || nombre == null || apellido == null || mail == null || titulo == null || legajo == null
+                    || password == null ||
+                    dni.isEmpty() || nombre.isEmpty() || apellido.isEmpty() || mail.isEmpty() || titulo.isEmpty()
+                    || legajo.isEmpty() || password.isEmpty()) {
                 model.put("errorMessage", "Todos los campos son obligatorios.");
                 return new ModelAndView(model, "teacher_form.mustache");
             }
@@ -401,7 +405,7 @@ public class App {
                 return new ModelAndView(model, "teacher_form.mustache");
             }
 
-              if (Persona.findById(dni) != null) {
+            if (Persona.findById(dni) != null) {
                 model.put("errorMessage", "Ya existe un usuario registrado con ese DNI.");
                 return new ModelAndView(model, "teacher_form.mustache");
             }
@@ -474,7 +478,7 @@ public class App {
             List<Map<String, Object>> teachersList = new ArrayList<>();
 
             LazyList<Docente> docentes = Docente.findAll();
-              for (Docente d : docentes) {
+            for (Docente d : docentes) {
                 Persona p = Persona.findById(d.getDni());
                 Map<String, Object> row = new HashMap<>();
                 row.put("dni", d.getDni());
@@ -484,16 +488,17 @@ public class App {
                 row.put("nro_legajo", d.getNroLegajo());
                 row.put("titulo", d.getTitulo());
                 teachersList.add(row);
-                }
+            }
 
             model.put("teachers", teachersList);
             return new ModelAndView(model, "teacher_list.mustache");
         }, new MustacheTemplateEngine());
 
-
-        //RUTAS
-        //Rutas dependientes de cada rol (ej. admin_dashboard.mustache, teacher_dashboard.mustache, student_dashboard.mustache) y sus funcionalidades asociadas.
-        //Dashboard de admin
+        // RUTAS
+        // Rutas dependientes de cada rol (ej. admin_dashboard.mustache,
+        // teacher_dashboard.mustache, student_dashboard.mustache) y sus funcionalidades
+        // asociadas.
+        // Dashboard de admin
         get("/dashboard/admin", (req, res) -> {
             if (!isAuthenticated(req) || !isAdmin(req)) {
                 res.redirect("/?error=Acceso denegado.");
@@ -504,8 +509,8 @@ public class App {
             return new ModelAndView(model, "admin_dashboard.mustache");
         }, new MustacheTemplateEngine());
 
-        //Dashboard de teacher
-         get("/dashboard/teacher", (req, res) -> {
+        // Dashboard de teacher
+        get("/dashboard/teacher", (req, res) -> {
             if (!isAuthenticated(req)) {
                 res.redirect("/?error=Acceso denegado.");
                 return null;
@@ -514,9 +519,9 @@ public class App {
             model.put("username", req.session().attribute("currentUserUsername"));
             return new ModelAndView(model, "teacher_dashboard.mustache");
         }, new MustacheTemplateEngine());
-        
-         //Dashboard de student
-           get("/dashboard/student", (req, res) -> {
+
+        // Dashboard de student
+        get("/dashboard/student", (req, res) -> {
             if (!isAuthenticated(req)) {
                 res.redirect("/?error=Acceso denegado.");
                 return null;
@@ -526,112 +531,107 @@ public class App {
             return new ModelAndView(model, "student_dashboard.mustache");
         }, new MustacheTemplateEngine());
 
+        // PROTECCIONES
+        // Protecciones del estilo "before" para rutas privilegiadas
+        before("/teacher/*", (req, res) -> {
+            if (!isAuthenticated(req) || !isAdmin(req)) {
+                res.redirect("/?error=No autorizado");
+                halt(401);
+            }
+        });
+        before("/teachers", (req, res) -> {
+            if (!isAuthenticated(req) || !isAdmin(req)) {
+                res.redirect("/?error=No autorizado");
+                halt(401);
+            }
+        });
 
-            //PROTECCIONES
-            //Protecciones del estilo "before" para rutas privilegiadas
-            before("/teacher/*", (req, res) -> {
-                if (!isAuthenticated(req) || !isAdmin(req)) {
-                        res.redirect("/?error=No autorizado");
-                        halt(401);
-                    }   
-                });
-            before("/teachers", (req, res) -> {
-                if (!isAuthenticated(req) || !isAdmin(req)) {
-                         res.redirect("/?error=No autorizado");
-                        halt(401);
-                     }
-                });
+        before("/student/*", (req, res) -> {
+            if (!isAuthenticated(req) || !isAdmin(req)) {
+                res.redirect("/?error=No autorizado");
+                halt(401);
+            }
+        });
 
-            before("/student/*", (req, res) -> {
-                if (!isAuthenticated(req) || !isAdmin(req)) {
-                 res.redirect("/?error=No autorizado");
-                    halt(401);
-                 }
-                });
+        before("/students", (req, res) -> {
+            if (!isAuthenticated(req) || !isAdmin(req)) {
+                res.redirect("/?error=No autorizado");
+                halt(401);
+            }
+        });
 
-            before("/students", (req, res) -> {
-                 if (!isAuthenticated(req) || !isAdmin(req)) {
-                    res.redirect("/?error=No autorizado");
-                    halt(401);
+        // CREACION Y MANJEO DE ESTUDIANTES
+        get("/student/new", (req, res) -> {
+            return new ModelAndView(new HashMap<>(), "student_form.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/student/new", (req, res) -> {
+            String nombre = req.queryParams("nombre");
+            String apellido = req.queryParams("apellido");
+            String password = req.queryParams("password");
+            String dni = req.queryParams("dni");
+            String mail = req.queryParams("mail");
+            String tipo_alumno = req.queryParams("tipo_alumno");
+
+            Map<String, Object> model = new HashMap<>();
+            if (nombre == null || apellido == null || password == null || dni == null || mail == null
+                    || tipo_alumno == null ||
+                    nombre.isEmpty() || apellido.isEmpty() || password.isEmpty() || dni.isEmpty() || mail.isEmpty()
+                    || tipo_alumno.isEmpty()) {
+                model.put("errorMessage", "Todos los campos son obligatorios.");
+                return new ModelAndView(model, "student_form.mustache");
+            }
+
+            if (Persona.findById(dni) != null) {
+                model.put("errorMessage", "Ya existe un alumno con ese DNI.");
+                return new ModelAndView(model, "student_form.mustache");
+            }
+
+            if (Persona.findFirst("mail = ?", mail) != null) {
+                model.put("errorMessage", "Ya existe un alumno con ese mail.");
+                return new ModelAndView(model, "student_form.mustache");
+            }
+
+            if (User.findFirst("name = ?", mail) != null) {
+                model.put("errorMessage", "Ya existe un usuario con ese nombre de usuario.");
+                return new ModelAndView(model, "student_form.mustache");
+            }
+            try {
+                Persona p = new Persona();
+                p.setDni(dni);
+                p.setNombre(nombre);
+                p.setApellido(apellido);
+                p.setMail(mail);
+
+                if (!p.insert()) {
+                    throw new Exception("Error al guardar la persona: " + p.errors());
                 }
-            });
 
+                Base.exec("INSERT INTO alumno (dni, tipo_alumno) VALUES (?, ?::talumn)", dni, tipo_alumno);
 
-            //CREACION Y MANJEO DE ESTUDIANTES
-            get("/student/new", (req, res) -> {
-                return new ModelAndView(new HashMap<>(), "student_form.mustache");
-            }, new MustacheTemplateEngine());
+                User newUser = new User();
+                newUser.setName(mail); // Usamos el mail como nombre de usuario para login
+                newUser.setPassword(BCrypt.hashpw(password, BCrypt.gensalt())); // Has
+                newUser.insert();
 
-            post("/student/new",(req,res)->{
-                String nombre = req.queryParams("nombre");
-                String apellido = req.queryParams("apellido");
-                String password = req.queryParams("password");
-                String dni = req.queryParams("dni");
-                String mail = req.queryParams("mail");
-                String tipo_alumno= req.queryParams("tipo_alumno");
+            } catch (Exception e) {
+                model.put("errorMessage", "Error al guardar al nuevo estudiante: " + e.getMessage());
+                return new ModelAndView(model, "student_form.mustache");
+            }
+            res.redirect("/students");
+            return null;
+        }, new MustacheTemplateEngine());
 
-                Map<String, Object> model = new HashMap<>();
-                if (nombre == null || apellido == null || password == null || dni == null || mail == null || tipo_alumno == null ||
-                    nombre.isEmpty() || apellido.isEmpty() || password.isEmpty() || dni.isEmpty() || mail.isEmpty() || tipo_alumno.isEmpty()) {
-                    model.put("errorMessage", "Todos los campos son obligatorios.");
-                    return new ModelAndView(model, "student_form.mustache");
-                }
-                
-                  if (Persona.findById(dni) != null) {
-                    model.put("errorMessage", "Ya existe un alumno con ese DNI.");
-                    return new ModelAndView(model, "student_form.mustache");
-                }
-
-                if (Persona.findFirst("mail = ?", mail) != null) {
-                    model.put("errorMessage", "Ya existe un alumno con ese mail.");
-                    return new ModelAndView(model, "student_form.mustache");
-                }
-
-                if (User.findFirst("name = ?", mail) != null) {
-                    model.put("errorMessage", "Ya existe un usuario con ese nombre de usuario.");
-                    return new ModelAndView(model, "student_form.mustache");
-                }
-                try {
-                    Persona p = new Persona();
-                    p.setDni(dni);
-                    p.setNombre(nombre);
-                    p.setApellido(apellido);
-                    p.setMail(mail);
-                    
-                    
-                    if (!p.insert()){
-                        throw new Exception("Error al guardar la persona: " + p.errors());
-                    }
-                                        
-                    Base.exec("INSERT INTO alumno (dni, tipo_alumno) VALUES (?, ?::talumn)", dni, tipo_alumno);
-
-                    User newUser = new User();
-                    newUser.setName(mail); // Usamos el mail como nombre de usuario para login
-                    newUser.setPassword(BCrypt.hashpw(password, BCrypt.gensalt())); // Has
-                    newUser.insert();
-
-
-                } catch (Exception e) {
-                    model.put("errorMessage", "Error al guardar al nuevo estudiante: " + e.getMessage());
-                    return new ModelAndView(model, "student_form.mustache");
-                }
-                res.redirect("/students");
-                return null;
-            }, new MustacheTemplateEngine());
-
-
-            //Listado de estudiantes
-            get("/students", (req, res) -> {
+        // Listado de estudiantes
+        get("/students", (req, res) -> {
             String currentUsername = req.session().attribute("currentUserUsername");
             Boolean loggedIn = req.session().attribute("loggedIn");
-
 
             if (!isAuthenticated(req) || !isAdmin(req)) {
                 res.redirect("/?error=No autorizado");
                 return null;
             }
 
-            
             if (currentUsername == null || loggedIn == null || !loggedIn) {
                 System.out.println("DEBUG: Acceso no autorizado a /dashboard. Redirigiendo a /login.");
                 // Redirige al login con un mensaje de error.
@@ -643,7 +643,7 @@ public class App {
 
             List<Map<String, Object>> studentsList = new ArrayList<>();
             LazyList<Alumno> alumnos = Alumno.findAll();
-             for (Alumno a : alumnos) {
+            for (Alumno a : alumnos) {
                 Persona p = Persona.findById(a.getDni());
                 Map<String, Object> row = new HashMap<>();
                 row.put("dni", a.getDni());
@@ -657,28 +657,225 @@ public class App {
             model.put("students", studentsList);
             return new ModelAndView(model, "student_list.mustache");
         }, new MustacheTemplateEngine());
-         
 
+        // BUSCAR DOCENTE
+        get("/teachers/search", (req, res) -> {
+
+            // Texto escrito por el usuario en el buscador
+            String q = req.queryParams("q");
+
+            // Modelo para enviar datos a la vista
+            Map<String, Object> model = new HashMap<>();
+
+            // Lista donde se guardarán los resultados encontrados
+            List<Map<String, Object>> teachersList = new ArrayList<>();
+
+            // Obtiene todos los docentes registrados
+            LazyList<Docente> docentes = Docente.findAll();
+
+            // Recorre cada docente
+            for (Docente docente : docentes) {
+
+                // Busca la persona asociada al docente
+                Persona persona = Persona.findById(docente.getDni());
+
+                if (persona == null) {
+                    continue;
+                }
+
+                /*
+                 * Verifica si el texto buscado coincide con:
+                 * - DNI
+                 * - Nombre
+                 * - Apellido
+                 * - Mail
+                 */
+                boolean coincide = docente.getDni().toLowerCase().contains(q.toLowerCase())
+                        || persona.getNombre().toLowerCase().contains(q.toLowerCase())
+                        || persona.getApellido().toLowerCase().contains(q.toLowerCase())
+                        || persona.getMail().toLowerCase().contains(q.toLowerCase());
+
+                // Si coincide, se agrega a la lista de resultados
+                if (coincide) {
+
+                    Map<String, Object> t = new HashMap<>();
+
+                    t.put("dni", docente.getDni());
+                    t.put("nombre", persona.getNombre());
+                    t.put("apellido", persona.getApellido());
+                    t.put("mail", persona.getMail());
+                    t.put("titulo", docente.getTitulo());
+                    t.put("nro_legajo", docente.getNroLegajo());
+
+                    teachersList.add(t);
+                }
+            }
+
+            /*
+             * Si no encontró resultados,
+             * muestra un mensaje de error
+             * y vuelve a cargar la lista completa.
+             */
+            if (teachersList.isEmpty()) {
+
+                model.put("errorMessage",
+                        "No se encontraron docentes para: " + q);
+
+                for (Docente docente : docentes) {
+
+                    Persona persona = Persona.findById(docente.getDni());
+
+                    Map<String, Object> t = new HashMap<>();
+
+                    t.put("dni", docente.getDni());
+                    t.put("nombre", persona.getNombre());
+                    t.put("apellido", persona.getApellido());
+                    t.put("mail", persona.getMail());
+                    t.put("titulo", docente.getTitulo());
+                    t.put("nro_legajo", docente.getNroLegajo());
+
+                    teachersList.add(t);
+                }
+            }
+
+            // Envía la lista a la plantilla
+            model.put("teachers", teachersList);
+
+            return new ModelAndView(model, "teacher_list.mustache");
+
+        }, new MustacheTemplateEngine());
+
+        // MOSTRAR FORMULARIO DE EDICIÓN
+        get("/teacher/edit/:dni", (req, res) -> {
+
+            /*
+             * Obtiene el DNI enviado en la URL.
+             * Ejemplo: /teacher/edit/12345678
+             */
+            String dni = req.params(":dni");
+
+            // Busca el docente en la tabla docente.
+            Docente docente = Docente.findById(dni);
+
+            // Busca los datos personales asociad a ese mismo DNI.
+            Persona persona = Persona.findById(dni);
+
+            /*
+             * Modelo que se enviará a la plantilla.
+             * Aquí se guardan los datos que luego
+             * aparecerán cargados en el formulario.
+             */
+            Map<String, Object> model = new HashMap<>();
+
+            model.put("dni", persona.getDni());
+            model.put("nombre", persona.getNombre());
+            model.put("apellido", persona.getApellido());
+            model.put("mail", persona.getMail());
+            model.put("titulo", docente.getTitulo());
+            model.put("nro_legajo", docente.getNroLegajo());
+
+            // Abre la pantalla teacher_edit.mustache mostrando los datos actuales del
+            // docente.
+            return new ModelAndView(model, "teacher_edit.mustache");
+
+        }, new MustacheTemplateEngine());
+
+        // GUARDAR CAMBIOS DEL DOCENTE
+        post("/teacher/edit/:dni", (req, res) -> {
+
+            // Obtiene el DNI desde la URL
+            String dni = req.params(":dni");
+
+            // Obtiene los nuevos datos ingresados en el formulario
+            String nombre = req.queryParams("nombre");
+            String apellido = req.queryParams("apellido");
+            String mail = req.queryParams("mail");
+            String titulo = req.queryParams("titulo");
+
+            // Busca los registros existentes
+            Docente docente = Docente.findById(dni);
+            Persona persona = Persona.findById(dni);
+
+            // Actualiza los datos personales
+            if (persona != null) {
+                persona.setNombre(nombre);
+                persona.setApellido(apellido);
+                persona.setMail(mail);
+                persona.saveIt();
+            }
+
+            // Actualiza los datos del docente
+            if (docente != null) {
+                docente.setTitulo(titulo);
+                docente.saveIt();
+            }
+
+            // Vuelve al listado de docentes
+            res.redirect("/teachers");
+
+            return null;
+
+        });
+
+        // ELIMINAR DOCENTE
+        post("/teacher/delete/:dni", (req, res) -> {
+
+            /*
+             * Obtiene el DNI que viene en la URL.
+             *
+             * Ejemplo:
+             * /teacher/delete/12345678
+             *
+             * entonces dni = "12345678"
+             */
+            String dni = req.params(":dni");
+
+            // Busca el docente en la tabla docente usando el DNI como clave primaria.
+
+            Docente docente = Docente.findById(dni);
+
+            // Si el docente existe, lo elimina.
+            if (docente != null) {
+                docente.delete();
+            }
+
+            // Busca la persona asociada al mismo DNI. Recordemos que los datos personales
+            // están guardados en la tabla persona.
+            Persona persona = Persona.findById(dni);
+
+            // Si la persona existe, también la elimina.
+            if (persona != null) {
+                persona.delete();
+            }
+
+            // Una vez eliminado, vuelve al listado de docentes.
+            res.redirect("/teachers");
+
+            return null;
+
+        });
 
         // Solo para regenerar la db
-        /*get("/impl_db_dev", (req, res) -> {
-            String sqlPath = "src/main/resources/scheme.sql";
-            String sql = new String(Files.readAllBytes(Paths.get(sqlPath)));
-
-            try {
-                for (String command : sql.split(";")) {
-                    if (!command.trim().isEmpty()) {
-                        Base.exec(command.trim());
-                    }
-                }
-                System.out.println("Base de datos inicializada correctamente.");
-                return "Base de datos recreada";
-            } catch (Exception e) {
-                e.printStackTrace();
-                res.status(500);
-                return "Error al recrear la base de datos: " + e.getMessage();
-            }
-        });*/
+        /*
+         * get("/impl_db_dev", (req, res) -> {
+         * String sqlPath = "src/main/resources/scheme.sql";
+         * String sql = new String(Files.readAllBytes(Paths.get(sqlPath)));
+         * 
+         * try {
+         * for (String command : sql.split(";")) {
+         * if (!command.trim().isEmpty()) {
+         * Base.exec(command.trim());
+         * }
+         * }
+         * System.out.println("Base de datos inicializada correctamente.");
+         * return "Base de datos recreada";
+         * } catch (Exception e) {
+         * e.printStackTrace();
+         * res.status(500);
+         * return "Error al recrear la base de datos: " + e.getMessage();
+         * }
+         * });
+         */
 
     } // Fin del método main
 } // Fin de la clase App
