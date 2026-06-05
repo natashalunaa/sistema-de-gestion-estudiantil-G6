@@ -1,16 +1,35 @@
-architecture-beta
-    group api(cloud)[Docker]
+graph TD
+    %% Definición de Estilos
+    classDef cliente fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef docker fill:#f5f5f5,stroke:#616161,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef app fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+    classDef db fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
 
-    service web(internet)[Cliente]
+    %% Entorno del Cliente (Fuera de Docker)
+    subgraph Navegador [Entorno del Cliente]
+        C[Interfaz de Usuario / Cliente]
+        T[Plantillas Mustache / HTML]
+        C --- T
+    end
 
-    service bottom_gateway(cloud)[API] in api
-    service db(database)[Postgres] in api
-    service disk2(disk)[postgres_data] in api
-    service server(server)[Java Spark] in api
+    %% Defino lo visual según los estilos
+    class C,T cliente;
 
-    junction junctionRight
+    %% Entorno del Servidor (Dentro de Docker)
+    subgraph Docker [Contenedor Docker]
+        JS[Backend: Java Spark]
+        PG[(Base de Datos: PostgreSQL)]
+        V[(Volumen: postgres_data)]
+        
+        PG --- V
+    end
 
-    db:L -- R:server
-    disk2:T -- B:db
-    bottom_gateway:T -- B:server
-    web:R -- L:bottom_gateway
+    %% Defino lo visual según los estilos
+    class Docker docker;
+    class JS app;
+    class PG,V db;
+
+    %% Conexiones
+    C -->|Peticiones HTTP / REST| JS
+    JS -->|Vistas Renderizadas| T
+    JS <-->|Consultas SQL via JDBC| PG
