@@ -5,11 +5,14 @@ import com.is1.proyecto.logic.AdminLogic;
 import com.is1.proyecto.logic.StudentLogic;
 import com.is1.proyecto.logic.TeacherLogic;
 import com.is1.proyecto.logic.UserLogic;
+import com.is1.proyecto.models.Persona;
+import com.is1.proyecto.models.Users;
 import org.javalite.activejdbc.Base;
 import spark.ModelAndView;
 import spark.template.mustache.MustacheTemplateEngine; // Para crear mapas de datos (modelos para las plantillas).
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static spark.Spark.*;
 
@@ -57,7 +60,7 @@ public class App1 {
 
         // --- Filtro 'after' para cerrar la conexión a la base de datos ---
         // Este filtro se ejecuta después de que cada solicitud HTTP ha sido procesada.
-        afterAfter((req, res) -> {
+        after((req, res) -> {
             try {
                 // Cierra la conexión a la base de datos para liberar recursos.
                 Base.close();
