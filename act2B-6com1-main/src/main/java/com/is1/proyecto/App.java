@@ -214,20 +214,21 @@ public class App {
         ///////////////////////////////////////////////////////////////////////////////
         ////////////////////// CATEDRAS ////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
+        
+        // PROTECCIONES (Filtros antes de entrar a las rutas)
+        before("/catedra/*", CatedraLogic::middleware);
+        before("/catedras", CatedraLogic::middleware);
 
         // Muestra la página principal de gestión de cátedras.
         // Permitirá visualizar las asignaciones actuales entre docentes y materias.
-        get("/catedras", CatedraLogic::listarCatedras,
-                new MustacheTemplateEngine());
+        get("/catedras", CatedraLogic::listarCatedras, new MustacheTemplateEngine());
 
         // Recibe los datos del formulario y crea una nueva asignación
         // entre un docente y una materia.
-        post("/catedras/asignar",
-                CatedraLogic::asignarDocente);
+        post("/catedras/asignar", CatedraLogic::asignarDocente);
 
         // Elimina una asignación existente entre un docente y una materia.
-        post("/catedras/desasignar",
-                CatedraLogic::desasignarDocente);
+        post("/catedras/desasignar", CatedraLogic::desasignarDocente);
 
     } // Fin del método main
 } // Fin de la clase App
