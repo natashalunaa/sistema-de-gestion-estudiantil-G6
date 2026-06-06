@@ -25,7 +25,7 @@ public class MateriaLogic {
     }
 
     // GET: /materia/new
-    public static ModelAndView createMateria(Request req, Response res){
+    public static ModelAndView createMateriaForm(Request req, Response res){
          // Intenta obtener el nombre de usuario y la bandera de login de la sesión.
         String currentUsername = req.session().attribute("currentUserUsername");
         Boolean loggedIn = req.session().attribute("loggedIn");
@@ -164,10 +164,10 @@ public class MateriaLogic {
         // encargado de rellenar los inputs del formulario
         Map<String, Object> model = new HashMap<>();
 
-        model.put("cod_materia", m.getCodMateria());
-        model.put("nombre_materia", m.getNombreMateria());
-        model.put("anio_materia", m.getAnioMateria());
-        model.put("cod_inscripcion", m.getCodInscripcion());
+        model.put("cod_materia", materia.getCodMateria());
+        model.put("nombre_materia", materia.getNombreMateria());
+        model.put("anio_materia", materia.getAnioMateria());
+        model.put("cod_inscripcion", materia.getCodInscripcion());
 
         // Abre la pantalla de edición pasándole los datos actuales
         return new ModelAndView(model, "materia_edit.mustache");
