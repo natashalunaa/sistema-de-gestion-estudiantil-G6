@@ -217,8 +217,7 @@ public class App {
 
         // Muestra la página principal de gestión de cátedras.
         // Permitirá visualizar las asignaciones actuales entre docentes y materias.
-        get("/catedras",
-                CatedraLogic::listarCatedras,
+        get("/catedras", CatedraLogic::listarCatedras,
                 new MustacheTemplateEngine());
 
         // Recibe los datos del formulario y crea una nueva asignación
