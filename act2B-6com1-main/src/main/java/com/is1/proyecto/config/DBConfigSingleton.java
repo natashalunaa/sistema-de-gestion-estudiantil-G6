@@ -27,10 +27,7 @@ public final class DBConfigSingleton {
             this.user = (pgUser == null || pgUser.isBlank()) ? "postgres" : pgUser;
             this.pass = (pgPass == null) ? "" : pgPass;
         } else {
-            this.driver = "org.sqlite.JDBC"; // Driver JDBC para SQLite
-            this.dbUrl = System.getProperty("db.url", "jdbc:sqlite:./db/dev.db");
-            this.user = ""; // SQLite no usa usuario
-            this.pass = ""; // SQLite no usa contraseña
+            throw new IllegalStateException("Las variables de entorno POSTGRES_HOST y POSTGRES_DB son obligatorias para configurar la conexión a la base de datos.");
         }
     }
 

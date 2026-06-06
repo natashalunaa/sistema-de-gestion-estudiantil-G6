@@ -16,7 +16,7 @@ import com.is1.proyecto.config.DBConfigSingleton; // Importa los métodos estát
 import com.is1.proyecto.models.Alumno; // Clase central de ActiveJDBC para gestionar la conexión a la base de datos.
 import com.is1.proyecto.models.Docente;
 import com.is1.proyecto.models.Persona;
-import com.is1.proyecto.models.User;
+import com.is1.proyecto.models.Users;
 
 import spark.ModelAndView;
 import spark.Request; // Utilidad para hashear y verificar contraseñas de forma segura.
@@ -46,8 +46,8 @@ public class App {
     public static final String ROLE_TEACHER = "teacher";
     public static final String ROLE_STUDENT = "student";
 
-    private static String resolveRole(User user) {
-        User firstUser = User.findFirst("1=1 ORDER BY id ASC");
+    private static String resolveRole(Users user) {
+        Users firstUser = Users.findFirst("1=1 ORDER BY id ASC");
         if (firstUser != null && user.getId().equals(firstUser.getId())) {
             return ROLE_ADMIN;
         }
@@ -231,14 +231,14 @@ public class App {
                 return "";
             }
 
-            if (User.findFirst("name = ?", name) != null) {
+            if (Users.findFirst("name = ?", name) != null) {
                 res.redirect("/user/create?error=El nombre de usuario ya existe.");
                 return "";
             }
 
             try {
-                long countUsers = User.count();
-                User newUser = new User();
+                long countUsers = Users.count();
+                Users newUser = new Users();
                 newUser.set("name", name);
                 newUser.set("password", BCrypt.hashpw(password, BCrypt.gensalt()));
                 newUser.insert();
@@ -279,7 +279,7 @@ public class App {
                 return null;
             }
 
-            User ac = User.findFirst("name = ?", username);
+            Users ac = Users.findFirst("name = ?", username);
             if (ac == null || !BCrypt.checkpw(plainTextPassword, ac.getString("password"))) {
                 res.redirect("/?error=Usuario o contraseña incorrectos.");
                 return null;
@@ -318,7 +318,7 @@ public class App {
 
             try {
                 // --- Creación y guardado del usuario usando el modelo ActiveJDBC ---
-                User newUser = new User(); // Crea una nueva instancia de tu modelo User.
+                Users newUser = new Users(); // Crea una nueva instancia de tu modelo User.
                 // ¡ADVERTENCIA DE SEGURIDAD CRÍTICA!
                 // En una aplicación real, las contraseñas DEBEN ser hasheadas (ej. con BCrypt)
                 // ANTES de guardarse en la base de datos, NUNCA en texto plano.
@@ -413,7 +413,7 @@ public class App {
                 return new ModelAndView(model, "teacher_form.mustache");
             }
 
-            if (User.findFirst("name = ?", mail) != null) {
+            if (Users.findFirst("name = ?", mail) != null) {
                 model.put("errorMessage", "Ya existe un usuario con ese nombre de usuario.");
                 return new ModelAndView(model, "teacher_form.mustache");
             }
@@ -433,7 +433,7 @@ public class App {
                 t.setTitulo(titulo);
                 t.insert();
 
-                User newUser = new User();
+                Users newUser = new Users();
                 newUser.set("name", mail);
                 newUser.set("password", BCrypt.hashpw(password, BCrypt.gensalt()));
                 newUser.insert();
@@ -590,7 +590,7 @@ public class App {
                 return new ModelAndView(model, "student_form.mustache");
             }
 
-            if (User.findFirst("name = ?", mail) != null) {
+            if (Users.findFirst("name = ?", mail) != null) {
                 model.put("errorMessage", "Ya existe un usuario con ese nombre de usuario.");
                 return new ModelAndView(model, "student_form.mustache");
             }
@@ -607,7 +607,7 @@ public class App {
 
                 Base.exec("INSERT INTO alumno (dni, tipo_alumno) VALUES (?, ?::talumn)", dni, tipo_alumno);
 
-                User newUser = new User();
+                Users newUser = new Users();
                 newUser.setName(mail); // Usamos el mail como nombre de usuario para login
                 newUser.setPassword(BCrypt.hashpw(password, BCrypt.gensalt())); // Has
                 newUser.insert();
