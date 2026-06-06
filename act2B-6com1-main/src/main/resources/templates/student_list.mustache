@@ -32,6 +32,7 @@
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Apellido</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Mail</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Tipo</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -42,6 +43,20 @@
                         <td class="px-6 py-4 text-sm text-gray-800">{{apellido}}</td>
                         <td class="px-6 py-4 text-sm text-gray-800">{{mail}}</td>
                         <td class="px-6 py-4 text-sm text-gray-800">{{tipo_alumno}}</td>
+                        <td class="px-6 py-4 text-sm text-gray-800">
+                            <div class="flex gap-2">
+                                <a href="/student/edit/{{dni}}"
+                                   class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
+                                    Editar
+                                </a>
+                                <form action="/student/delete/{{dni}}" method="post" onsubmit="return confirm('¿Está seguro que desea eliminar este alumno?')">
+                                    <button type="submit"
+                                            class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                     {{/students}}
                 </tbody>

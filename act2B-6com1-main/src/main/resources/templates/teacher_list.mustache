@@ -22,23 +22,13 @@
         </div>
         {{/errorMessage}}
 
-         <!--Busqueda de profesor-->
-
-        
         <form action="/teachers/search" method="get" class="mb-4 flex gap-2">
-            <input
-                type="text"
-                name="q"
-                placeholder="Buscar por DNI, Nombre, apellido o mail"
-                class="border border-gray-300 px-3 py-2 rounded-md w-full">
-
-            <button
-                type="submit"
-                class="bg-blue-600 text-white px-4 py-2 rounded-md">
+            <input type="text" name="q" placeholder="Buscar por DNI, Nombre, apellido o mail"
+                   class="border border-gray-300 px-3 py-2 rounded-md w-full">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">
                 Buscar
             </button>
         </form>
-
 
         {{#teachers}}
         <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
@@ -52,7 +42,6 @@
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Legajo</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Título</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Acciones</th>
-
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -65,30 +54,18 @@
                         <td class="px-6 py-4 text-sm text-gray-800">{{nro_legajo}}</td>
                         <td class="px-6 py-4 text-sm text-gray-800">{{titulo}}</td>
                         <td class="px-6 py-4 text-sm text-gray-800">
-
                             <div class="flex gap-2">
-
-                                <a
-                                    href="/teacher/edit/{{dni}}"
-                                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
+                                <a href="/teacher/edit/{{dni}}"
+                                   class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
                                     Editar
                                 </a>
-
-                                <form action="/teacher/delete/{{dni}}" method="post">
-
-                                    <button
-                                        type="submit"
-                                        onclick="return confirm('¿Está seguro que desea eliminar este docente?')"
-                                        class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
-
+                                <form action="/teacher/delete/{{dni}}" method="post" onsubmit="return confirm('¿Está seguro que desea eliminar este docente?')">
+                                    <button type="submit"
+                                            class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
                                         Eliminar
-
                                     </button>
-
                                 </form>
-
                             </div>
-
                         </td>
                     </tr>
                     {{/teachers}}
