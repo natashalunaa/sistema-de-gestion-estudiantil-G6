@@ -16,11 +16,31 @@ public class Materia extends Model {
         set("cod_materia", codMateria);
     }
 
-    public Integer getNumMateria() {
-        return getInteger("num_materia");
+    // nombre materia
+    public String getNombreMateria() {
+        return getString("nombre_materia ");
     }
 
-    public void setNumMateria(Integer numMateria) {
-        set("num_materia", numMateria);
+    public void setNombreMateria(String nombreMateria) {
+        set("nombre_materia", nombreMateria);
     }
+
+    // Año de la materia
+    public Integer getAnioMateria() {
+        return getInteger("anio_materia");
+    }
+
+    public void setAnioMateria(Integer anioMateria) {
+        set("anio_materia", anioMateria);
+    }
+
+    // Código de inscripción
+    public String getCodInscripcion() {
+        return getString("cod_inscripcion");
+    }
+
+    public void setCodInscripcion(String codInscripcion) {
+        set("cod_inscripcion", codInscripcion);
+    }
+
 }
