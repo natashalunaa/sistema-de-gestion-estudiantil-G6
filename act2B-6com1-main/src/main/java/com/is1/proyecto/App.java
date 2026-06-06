@@ -182,5 +182,31 @@ public class App {
 
         // ELIMINAR DOCENTE
         post("/teacher/delete/:dni", TeacherLogic::deleteTeacher);
+
+
+        ///////////////////////////////////////////////////////////////////////////////
+        //////////////////////           MATERIAS            //////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+
+        // PROTECCIONES (Filtros antes de entrar a las rutas)
+        before("/materia/*", MateriaLogic::middleware);
+        before("/materias", MateriaLogic::middleware);
+
+        // FORMULARIO Y GUARDADO
+        get("/materia/new", MateriaLogic::createMateriaForm, new MustacheTemplateEngine());
+        post("/materia/new", MateriaLogic::storeInDB, new MustacheTemplateEngine());
+        
+        // LISTADO GENERAL
+        get("/materias", MateriaLogic::listMaterias, new MustacheTemplateEngine());
+
+        // ELIMINAR MATERIA
+        post("/materia/delete/:cod_materia", MateriaLogic::deleteMateria);
+
+        // MOSTRAR FORMULARIO DE EDICIÓN DE MATERIA
+        get("/materia/edit/:cod_materia", MateriaLogic::editMateriaForm, new MustacheTemplateEngine());
+
+        // GUARDAR CAMBIOS DE LA MATERIA MODIFICADA
+        post("/materia/edit/:cod_materia", MateriaLogic::editMateria);
+
     } // Fin del método main
 } // Fin de la clase App
