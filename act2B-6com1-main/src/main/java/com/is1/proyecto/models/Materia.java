@@ -18,7 +18,7 @@ public class Materia extends Model {
 
     // nombre materia
     public String getNombreMateria() {
-        return getString("nombre_materia ");
+        return getString("nombre_materia");
     }
 
     public void setNombreMateria(String nombreMateria) {

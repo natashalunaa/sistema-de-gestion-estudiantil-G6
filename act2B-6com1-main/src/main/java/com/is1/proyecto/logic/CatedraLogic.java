@@ -3,7 +3,6 @@ package com.is1.proyecto.logic;
 import com.is1.proyecto.models.DocenteResponsableMateria;
 import com.is1.proyecto.models.Docente;
 import com.is1.proyecto.models.Materia;
-import com.is1.proyecto.models.Persona;
 import org.javalite.activejdbc.LazyList;
 import spark.ModelAndView;
 import spark.Request;
@@ -28,7 +27,9 @@ public class CatedraLogic {
         }
     }
 
-    // Listado de cátedras
+    // GET: /catedras
+    // Muestra las asignaciones actuales y carga
+    // los datos necesarios para el formulario.
     public static ModelAndView listarCatedras(Request req, Response res) {
 
         // Obtiene los datos de la sesión
@@ -62,11 +63,13 @@ public class CatedraLogic {
         // Envía la lista a Mustache
         model.put("catedras", catedrasList);
 
-        // CARGA DE DOCENTES PARA EL SELECT
+        // Carga la lista de docentes disponibles
+        // para el formulario de asignación.
         List<Docente> docentes = Docente.findAll();
         model.put("docentes", docentes);
 
-        // CARGA DE MATERIAS PARA EL SELECT
+        // Carga la lista de materias disponibles
+        // para el formulario de asignación.
         List<Materia> materias = Materia.findAll();
         model.put("materias", materias);
 
