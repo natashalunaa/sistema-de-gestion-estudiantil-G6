@@ -2,6 +2,7 @@ package com.is1.proyecto; // Define el paquete de la aplicación, debe coincidir
 
 import com.is1.proyecto.config.DBConfigSingleton; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
 import com.is1.proyecto.logic.AdminLogic;
+import com.is1.proyecto.logic.MateriaLogic;
 import com.is1.proyecto.logic.StudentLogic;
 import com.is1.proyecto.logic.TeacherLogic;
 import com.is1.proyecto.logic.UserLogic;
@@ -67,19 +68,20 @@ public class App {
             }
         });
 
-
         ///////////////////////////////////////////////////////////////////////////////
-        //////////////////////            USERS            ////////////////////////////
+        ////////////////////// USERS ////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
 
         // GET: Muestra el formulario de creación de cuenta.
         // Soporta la visualización de mensajes de éxito o error pasados como query
         // parameters.
-        get("/user/create", UserLogic::createUser, new MustacheTemplateEngine()); // Especifica el motor de plantillas para esta ruta.
+        get("/user/create", UserLogic::createUser, new MustacheTemplateEngine()); // Especifica el motor de plantillas
+                                                                                  // para esta ruta.
 
         // GET: Ruta para mostrar el dashboard (panel de control) del usuario.
         // Requiere que el usuario esté autenticado.
-        get("/dashboard", UserLogic::dashboard, new MustacheTemplateEngine()); // Especifica el motor de plantillas para esta ruta.
+        get("/dashboard", UserLogic::dashboard, new MustacheTemplateEngine()); // Especifica el motor de plantillas para
+                                                                               // esta ruta.
 
         // GET: Ruta para cerrar la sesión del usuario.
         get("/logout", UserLogic::logout);
@@ -94,7 +96,8 @@ public class App {
         // GET: Ruta de alias para el formulario de creación de cuenta.
         // En una aplicación real, probablemente querrías unificar con '/user/create'
         // para evitar duplicidad.
-        get("/user/new", UserLogic::createUser, new MustacheTemplateEngine()); // Especifica el motor de plantillas para esta ruta.
+        get("/user/new", UserLogic::createUser, new MustacheTemplateEngine()); // Especifica el motor de plantillas para
+                                                                               // esta ruta.
         // POST: Maneja el envío del formulario de creación de nueva cuenta.
         post("/user/new", UserLogic::registerNewUser);
 
@@ -108,7 +111,7 @@ public class App {
         post("/add_users", UserLogic::addUser);
 
         ///////////////////////////////////////////////////////////////////////////////
-        //////////////////////            ADMIN            ////////////////////////////
+        ////////////////////// ADMIN ////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
 
         // RUTAS
@@ -118,9 +121,8 @@ public class App {
         // Dashboard de admin
         get("/dashboard/admin", AdminLogic::adminDashboard, new MustacheTemplateEngine());
 
-
         ///////////////////////////////////////////////////////////////////////////////
-        //////////////////////           STUDENTS          ////////////////////////////
+        ////////////////////// STUDENTS ////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
 
         // Dashboard de student
@@ -136,23 +138,24 @@ public class App {
         get(
                 "/student/new",
                 (req, res) -> new ModelAndView(new HashMap<>(), "student_form.mustache"),
-                new MustacheTemplateEngine()
-        );
+                new MustacheTemplateEngine());
 
         post("/student/new", StudentLogic::createStudent, new MustacheTemplateEngine());
 
         // Listado de estudiantes
         get("/students", StudentLogic::listStudents, new MustacheTemplateEngine());
 
-        //Creacion automatica de perfil de estudiante al registrarse, si el usuario registrado no tiene un perfil completo de estudiante, se le redirige a completar su perfil antes de acceder al dashboard
+        // Creacion automatica de perfil de estudiante al registrarse, si el usuario
+        // registrado no tiene un perfil completo de estudiante, se le redirige a
+        // completar su perfil antes de acceder al dashboard
         get("/student/complete-profile", StudentLogic::completeProfileForm, new MustacheTemplateEngine());
         post("/student/complete-profile", StudentLogic::completeProfile, new MustacheTemplateEngine());
 
-        //Eliminacion de estudiantes desde el dashboard del admin
+        // Eliminacion de estudiantes desde el dashboard del admin
         post("/student/delete/:dni", StudentLogic::delete);
 
         ///////////////////////////////////////////////////////////////////////////////
-        //////////////////////           TEACHERS          ////////////////////////////
+        ////////////////////// TEACHERS ////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
 
         // PROTECCIONES
@@ -183,9 +186,8 @@ public class App {
         // ELIMINAR DOCENTE
         post("/teacher/delete/:dni", TeacherLogic::deleteTeacher);
 
-
         ///////////////////////////////////////////////////////////////////////////////
-        //////////////////////           MATERIAS            //////////////////////////
+        ////////////////////// MATERIAS //////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
 
         // PROTECCIONES (Filtros antes de entrar a las rutas)
@@ -195,7 +197,7 @@ public class App {
         // FORMULARIO Y GUARDADO
         get("/materia/new", MateriaLogic::createMateriaForm, new MustacheTemplateEngine());
         post("/materia/new", MateriaLogic::storeInDB, new MustacheTemplateEngine());
-        
+
         // LISTADO GENERAL
         get("/materias", MateriaLogic::listMaterias, new MustacheTemplateEngine());
 
@@ -207,6 +209,25 @@ public class App {
 
         // GUARDAR CAMBIOS DE LA MATERIA MODIFICADA
         post("/materia/edit/:cod_materia", MateriaLogic::editMateria);
+
+        ///////////////////////////////////////////////////////////////////////////////
+        ////////////////////// CATEDRAS ////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+
+        // Muestra la página principal de gestión de cátedras.
+        // Permitirá visualizar las asignaciones actuales entre docentes y materias.
+        get("/catedras",
+                CatedraLogic::listarCatedras,
+                new MustacheTemplateEngine());
+
+        // Recibe los datos del formulario y crea una nueva asignación
+        // entre un docente y una materia.
+        post("/catedras/asignar",
+                CatedraLogic::asignarDocente);
+
+        // Elimina una asignación existente entre un docente y una materia.
+        post("/catedras/desasignar",
+                CatedraLogic::desasignarDocente);
 
     } // Fin del método main
 } // Fin de la clase App
