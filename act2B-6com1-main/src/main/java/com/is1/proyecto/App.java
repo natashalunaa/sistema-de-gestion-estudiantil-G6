@@ -104,8 +104,8 @@ public class App {
     public static void main(String[] args) {
         String appPort = System.getenv("APP_PORT");
         port(appPort != null && !appPort.isBlank() ? Integer.parseInt(appPort) : 8080); // Configura el puerto en el que
-                                                                                        // la aplicación Spark escuchará
-                                                                                        // las peticiones
+        // la aplicación Spark escuchará
+        // las peticiones
         // port(85);
 
         // Obtener la instancia única del singleton de configuración de la base de
@@ -239,7 +239,7 @@ public class App {
         // para evitar duplicidad.
         get("/user/new", (req, res) -> {
             return new ModelAndView(new HashMap<>(), "user_form.mustache"); // No pasa un modelo específico, solo el
-                                                                            // formulario.
+            // formulario.
         }, new MustacheTemplateEngine()); // Especifica el motor de plantillas para esta ruta.
 
         // --- Rutas POST para manejar envíos de formularios y APIs ---
@@ -564,7 +564,7 @@ public class App {
         }, new MustacheTemplateEngine());
 
         // Dashboard de student
-       get("/dashboard/student", (req, res) -> {
+        get("/dashboard/student", (req, res) -> {
             if (!isAuthenticated(req)) {
                 res.redirect("/?error=Acceso denegado.");
                 return null;
@@ -584,14 +584,14 @@ public class App {
         // PROTECCIONES
         // Protecciones del estilo "before" para rutas privilegiadas
 
-           before("/teachers/search", (req, res) -> {
+        before("/teachers/search", (req, res) -> {
             if (!isAuthenticated(req) || !isAdmin(req)) {
                 res.redirect("/?error=No autorizado");
                 halt(401);
             }
         });
 
-         before("/teacher/*", (req, res) -> {
+        before("/teacher/*", (req, res) -> {
             if (!isAuthenticated(req) || !isAdmin(req)) {
                 res.redirect("/?error=No autorizado");
                 halt(401);
@@ -628,41 +628,41 @@ public class App {
             }
         });
 
-         before("/dashboard/admin", (req, res) -> {
+        before("/dashboard/admin", (req, res) -> {
             if (!isAuthenticated(req) || !isAdmin(req)) {
                 res.redirect("/?error=No autorizado");
                 halt(401);
             }
         });
 
-            before("/dashboard/teacher", (req, res) -> {
+        before("/dashboard/teacher", (req, res) -> {
             if (!isAuthenticated(req) || !ROLE_TEACHER.equals(req.session().attribute("role"))) {
                 res.redirect("/?error=No autorizado");
                 halt(401);
             }
         });
 
-             before("/dashboard/student", (req, res) -> {
+        before("/dashboard/student", (req, res) -> {
             if (!isAuthenticated(req) || !ROLE_STUDENT.equals(req.session().attribute("role"))) {
                 res.redirect("/?error=No autorizado");
                 halt(401);
             }
         });
 
-              before("/student/complete-profile", (req, res) -> {
+        before("/student/complete-profile", (req, res) -> {
             if (!isAuthenticated(req) || !ROLE_STUDENT.equals(req.session().attribute("role"))) {
                 res.redirect("/?error=No autorizado");
                 halt(401);
             }
         });
 
-      
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // CREACION Y MANJEO DE ESTUDIANTES
 
         //Creacion automatica de perfil de estudiante al registrarse, si el usuario registrado no tiene un perfil completo de estudiante, se le redirige a completar su perfil antes de acceder al dashboard
-            get("/student/complete-profile", (req, res) -> {
+        get("/student/complete-profile", (req, res) -> {
             if (!isAuthenticated(req) || !ROLE_STUDENT.equals(req.session().attribute("role"))) {
                 res.redirect("/?error=Acceso denegado.");
                 return null;
@@ -924,7 +924,7 @@ public class App {
 
 
         //Eliminacion de estudiantes desde el dashboard del admin
-         post("/student/delete/:dni", (req, res) -> {
+        post("/student/delete/:dni", (req, res) -> {
             String dni = req.params(":dni");
 
             Persona persona = Persona.findById(dni);
@@ -1093,12 +1093,12 @@ public class App {
             model.put("titulo", titulo);
             model.put("nro_legajo", nroLegajo);
 
-             if (persona == null || docente == null) {
+            if (persona == null || docente == null) {
                 model.put("errorMessage", "Docente no encontrado.");
                 return new ModelAndView(model, "teacher_edit.mustache");
             }
 
-             Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(mail);
+            Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(mail);
 
             // Actualiza los datos personales
             if (docente != null && persona != null){
@@ -1109,21 +1109,21 @@ public class App {
                     return new ModelAndView(model, "teacher_edit.mustache");
                 }
 
-               if (!isValidEmail(mail)) {
-                model.put("errorMessage", "El formato del mail no es válido.");
-                return new ModelAndView(model, "teacher_edit.mustache");
+                if (!isValidEmail(mail)) {
+                    model.put("errorMessage", "El formato del mail no es válido.");
+                    return new ModelAndView(model, "teacher_edit.mustache");
                 }
 
                 if (!mail.equals(persona.getMail())) {
-                 if (Persona.findFirst("mail = ?", mail) != null) {
-                    model.put("errorMessage", "Ya existe un usuario registrado con ese mail.");
-                    return new ModelAndView(model, "teacher_edit.mustache");
+                    if (Persona.findFirst("mail = ?", mail) != null) {
+                        model.put("errorMessage", "Ya existe un usuario registrado con ese mail.");
+                        return new ModelAndView(model, "teacher_edit.mustache");
                     }
-                if (Users.findFirst("name = ?", mail) != null) {
-                    model.put("errorMessage", "Ya existe un usuario con ese nombre de usuario.");
-                    return new ModelAndView(model, "teacher_edit.mustache");
+                    if (Users.findFirst("name = ?", mail) != null) {
+                        model.put("errorMessage", "Ya existe un usuario con ese nombre de usuario.");
+                        return new ModelAndView(model, "teacher_edit.mustache");
+                    }
                 }
-            }
                 String oldMail = persona.getMail();
                 persona.setNombre(nombre);
                 persona.setApellido(apellido);
@@ -1131,7 +1131,7 @@ public class App {
                 persona.saveIt();
                 updateUserNameByEmail(oldMail, mail);
 
-               
+
 
                 docente.setTitulo(titulo);
                 docente.setNroLegajo(nroLegajo);
@@ -1139,7 +1139,7 @@ public class App {
             }
 
             // Vuelve al listado de docentes
-                res.redirect("/teachers");
+            res.redirect("/teachers");
 
             return null;
 
@@ -1192,7 +1192,7 @@ public class App {
          * get("/impl_db_dev", (req, res) -> {
          * String sqlPath = "src/main/resources/scheme.sql";
          * String sql = new String(Files.readAllBytes(Paths.get(sqlPath)));
-         * 
+         *
          * try {
          * for (String command : sql.split(";")) {
          * if (!command.trim().isEmpty()) {

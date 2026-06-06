@@ -5,11 +5,14 @@ import com.is1.proyecto.logic.AdminLogic;
 import com.is1.proyecto.logic.StudentLogic;
 import com.is1.proyecto.logic.TeacherLogic;
 import com.is1.proyecto.logic.UserLogic;
+import com.is1.proyecto.models.Persona;
+import com.is1.proyecto.models.Users;
 import org.javalite.activejdbc.Base;
 import spark.ModelAndView;
 import spark.template.mustache.MustacheTemplateEngine; // Para crear mapas de datos (modelos para las plantillas).
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static spark.Spark.*;
 
@@ -130,6 +133,7 @@ public class App1 {
         // Protecciones del estilo "before" para rutas privilegiadas
         before("/student/*", StudentLogic::middleware);
         before("/students", StudentLogic::middleware);
+        before("/student/complete-profile", StudentLogic::middleware);
 
         // CREACION Y MANJEO DE ESTUDIANTES
         get(
@@ -142,6 +146,13 @@ public class App1 {
 
         // Listado de estudiantes
         get("/students", StudentLogic::listStudents, new MustacheTemplateEngine());
+
+        //Creacion automatica de perfil de estudiante al registrarse, si el usuario registrado no tiene un perfil completo de estudiante, se le redirige a completar su perfil antes de acceder al dashboard
+        get("/student/complete-profile", StudentLogic::completeProfileForm, new MustacheTemplateEngine());
+        post("/student/complete-profile", StudentLogic::completeProfile, new MustacheTemplateEngine());
+
+        //Eliminacion de estudiantes desde el dashboard del admin
+        post("/student/delete/:dni", StudentLogic::delete);
 
         ///////////////////////////////////////////////////////////////////////////////
         //////////////////////           TEACHERS          ////////////////////////////
