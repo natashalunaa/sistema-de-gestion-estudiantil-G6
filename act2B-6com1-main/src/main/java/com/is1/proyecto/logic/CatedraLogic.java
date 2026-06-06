@@ -1,6 +1,9 @@
 package com.is1.proyecto.logic;
 
 import com.is1.proyecto.models.DocenteResponsableMateria;
+import com.is1.proyecto.models.Docente;
+import com.is1.proyecto.models.Materia;
+import com.is1.proyecto.models.Persona;
 import org.javalite.activejdbc.LazyList;
 import spark.ModelAndView;
 import spark.Request;
@@ -14,7 +17,6 @@ import java.util.Map;
 import static com.is1.proyecto.logic.UserLogic.isAdmin;
 import static com.is1.proyecto.logic.UserLogic.isAuthenticated;
 import static spark.Spark.halt;
-
 
 public class CatedraLogic {
 
@@ -59,6 +61,14 @@ public class CatedraLogic {
 
         // Envía la lista a Mustache
         model.put("catedras", catedrasList);
+
+        // CARGA DE DOCENTES PARA EL SELECT
+        List<Docente> docentes = Docente.findAll();
+        model.put("docentes", docentes);
+
+        // CARGA DE MATERIAS PARA EL SELECT
+        List<Materia> materias = Materia.findAll();
+        model.put("materias", materias);
 
         // Devuelve la vista
         return new ModelAndView(model, "catedras.mustache");
