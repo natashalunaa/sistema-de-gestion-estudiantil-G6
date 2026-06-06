@@ -3,6 +3,7 @@ package com.is1.proyecto; // Define el paquete de la aplicación, debe coincidir
 import com.is1.proyecto.config.DBConfigSingleton; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
 import com.is1.proyecto.logic.AdminLogic;
 import com.is1.proyecto.logic.MateriaLogic;
+import com.is1.proyecto.logic.CatedraLogic;
 import com.is1.proyecto.logic.StudentLogic;
 import com.is1.proyecto.logic.TeacherLogic;
 import com.is1.proyecto.logic.UserLogic;

@@ -196,7 +196,7 @@ public class MateriaLogic {
                 
                 // .saveIt() es el método de ActiveJDBC que hace el update directo en Postgres
                 m.saveIt(); 
-            } catch (NumberFormatException e) {
+            } catch (Exception e) {
                 // si cargan texto en el año, relanzamos el formulario con error
                 Map<String, Object> model = new HashMap<>();
                 model.put("cod_materia", codMateria);
