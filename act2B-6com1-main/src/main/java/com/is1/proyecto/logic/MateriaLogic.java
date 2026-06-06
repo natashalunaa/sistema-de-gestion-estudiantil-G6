@@ -89,12 +89,14 @@ public class MateriaLogic {
             m.insert();
         } catch (Exception e){
             e.printStackTrace();
-            model.put("errorMessage", "Error al guardar la materia: " + e.getMessage());
+            // si el error fue por las letras en el número, avisamos eso, sino mostramos el mensaje de la BD
+            if (e instanceof NumberFormatException) {
+                model.put("errorMessage", "El año de la materia debe ser un número entero válido.");
+            } else {
+                model.put("errorMessage", "Error al guardar la materia: " + e.getMessage());
+            }
             return new ModelAndView(model, "materia_form.mustache");
-        } catch (NumberFormatException e) {
-            model.put("errorMessage", "El año de la materia debe ser un número entero válido.");
-            return new ModelAndView(model, "materia_form.mustache");
-        }
+        } 
 
         // redirigir a la lista
         res.redirect("/materias");
@@ -203,7 +205,14 @@ public class MateriaLogic {
                 model.put("nombre_materia", nombreMateria);
                 model.put("anio_materia", anioMateria);
                 model.put("cod_inscripcion", codInscripcion);
-                model.put("errorMessage", "El año debe ser un número entero válido.");
+                
+                // Si el error es por formato de número
+                if (e instanceof NumberFormatException) {
+                    model.put("errorMessage", "El año debe ser un número entero válido.");
+                } else {
+                    model.put("errorMessage", "Error al actualizar en la base de datos: " + e.getMessage());
+                }
+                
                 return new ModelAndView(model, "materia_edit.mustache");
             }
         }
