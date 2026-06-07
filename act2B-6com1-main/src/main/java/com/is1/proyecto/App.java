@@ -3,6 +3,7 @@ package com.is1.proyecto; // Define el paquete de la aplicación, debe coincidir
 import com.is1.proyecto.config.DBConfigSingleton; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
 import com.is1.proyecto.logic.AdminLogic;
 import com.is1.proyecto.logic.MateriaLogic;
+import com.is1.proyecto.logic.CarreraLogic;
 import com.is1.proyecto.logic.CatedraLogic;
 import com.is1.proyecto.logic.StudentLogic;
 import com.is1.proyecto.logic.TeacherLogic;
@@ -225,5 +226,27 @@ public class App {
         // Elimina una asignación existente entre un docente y una materia.
         post("/catedras/desasignar", CatedraLogic::desasignarDocente);
 
+
+        ///////////////////////////////////////////////////////////////////////////////
+        //////////////////////    CARRERAS    ////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+
+        // 1. Mostrar el formulario para registrar una nueva carrera (GET)
+        get("/admin/carrera/new", CarreraLogic::createCarreraForm, new MustacheTemplateEngine());
+
+        // 2. Procesar los datos y guardar la nueva carrera en la BD (POST)
+        post("/admin/carrera/new", CarreraLogic::storeInDB);
+
+        // 3. Mostrar la tabla con el listado de todas las carreras (GET)
+        get("/carreras", CarreraLogic::listCarreras, new MustacheTemplateEngine());
+
+        // 4. Mostrar el formulario para editar una carrera existente (GET)
+        get("/admin/carrera/edit/:cod_carrera", CarreraLogic::editCarreraForm, new MustacheTemplateEngine());
+
+        // 5. Procesar los cambios de la carrera editada (POST)
+        post("/admin/carrera/edit/:cod_carrera", CarreraLogic::editCarrera);
+
+        // 6. Eliminar una carrera de la base de datos (GET)
+        get("/admin/carrera/delete/:cod_carrera", CarreraLogic::deleteCarrera);
     } // Fin del método main
 } // Fin de la clase App
