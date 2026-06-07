@@ -26,7 +26,7 @@ public class StudentLogic {
         }
     }
 
-    //Dashboard
+    // Dashboard
     public static ModelAndView dashboard(Request req, Response res) {
         if (!isAuthenticated(req)) {
             res.redirect("/?error=Acceso denegado.");
@@ -37,7 +37,7 @@ public class StudentLogic {
         return new ModelAndView(model, "student_dashboard.mustache");
     }
 
-    //Create Student
+    // Create Student
     public static ModelAndView createStudent(Request req, Response res) {
         String nombre = req.queryParams("nombre");
         String apellido = req.queryParams("apellido");
@@ -95,7 +95,7 @@ public class StudentLogic {
         return null;
     }
 
-    //List Students
+    // List Students
     public static ModelAndView listStudents(Request req, Response res) {
         String currentUsername = req.session().attribute("currentUserUsername");
         Boolean loggedIn = req.session().attribute("loggedIn");
@@ -131,7 +131,7 @@ public class StudentLogic {
         return new ModelAndView(model, "student_list.mustache");
     }
 
-    //Students complete profile
+    // Students complete profile
     public static ModelAndView completeProfileForm(Request req, Response res) {
         if (!isAuthenticated(req) || !ROLE_STUDENT.equals(req.session().attribute("role"))) {
             res.redirect("/?error=Acceso denegado.");
@@ -208,6 +208,82 @@ public class StudentLogic {
         }
     }
 
+    public static ModelAndView editStudentForm(Request req, Response res) {
+
+        String dni = req.params(":dni");
+
+        Persona persona = Persona.findById(dni);
+        Alumno alumno = Alumno.findById(dni);
+
+        if (persona == null || alumno == null) {
+            res.redirect("/students");
+            return null;
+        }
+
+        Map<String, Object> model = new HashMap<>();
+        model.put("dni", persona.getDni());
+        model.put("nombre", persona.getNombre());
+        model.put("apellido", persona.getApellido());
+        model.put("mail", persona.getMail());
+
+        String tipo = alumno.getTipoAlumno();
+
+        model.put("tipo_alumno", tipo);
+
+        if ("Ingresante".equals(tipo)) {
+            model.put("ingresanteSelected", true);
+        }
+
+        if ("Avanzado".equals(tipo)) {
+            model.put("avanzadoSelected", true);
+        }
+
+        return new ModelAndView(model, "student_edit.mustache");
+    }
+
+    public static ModelAndView editStudent(Request req, Response res) {
+
+        String dni = req.params(":dni");
+
+        Persona persona = Persona.findById(dni);
+        Alumno alumno = Alumno.findById(dni);
+
+        if (persona == null || alumno == null) {
+            res.redirect("/students");
+            return null;
+        }
+
+        try {
+
+            persona.setNombre(req.queryParams("nombre"));
+            persona.setApellido(req.queryParams("apellido"));
+            persona.setMail(req.queryParams("mail"));
+
+            persona.saveIt();
+
+            Base.exec(
+                    "UPDATE alumno SET tipo_alumno = ?::talumn WHERE dni = ?",
+                    req.queryParams("tipo_alumno"),
+                    dni);
+
+        } catch (Exception e) {
+
+            Map<String, Object> model = new HashMap<>();
+
+            model.put("dni", dni);
+            model.put("nombre", req.queryParams("nombre"));
+            model.put("apellido", req.queryParams("apellido"));
+            model.put("mail", req.queryParams("mail"));
+            model.put("tipo_alumno", req.queryParams("tipo_alumno"));
+            model.put("errorMessage", e.getMessage());
+
+            return new ModelAndView(model, "student_edit.mustache");
+        }
+
+        res.redirect("/students");
+        return null;
+    }
+
     // Delete
     public static ModelAndView delete(Request req, Response res) {
         String dni = req.params(":dni");
@@ -225,7 +301,7 @@ public class StudentLogic {
         return null;
     }
 
-    //Private methods
+    // Private methods
     private static boolean isStudentProfileComplete(String username) {
         if (username == null || username.isEmpty()) {
             return false;

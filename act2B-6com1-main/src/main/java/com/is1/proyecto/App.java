@@ -150,6 +150,11 @@ public class App {
         get("/student/complete-profile", StudentLogic::completeProfileForm, new MustacheTemplateEngine());
         post("/student/complete-profile", StudentLogic::completeProfile, new MustacheTemplateEngine());
 
+        // Editar alumno
+        get("/student/edit/:dni", StudentLogic::editStudentForm, new MustacheTemplateEngine());
+
+        post("/student/edit/:dni", StudentLogic::editStudent, new MustacheTemplateEngine());
+
         // Eliminacion de estudiantes desde el dashboard del admin
         post("/student/delete/:dni", StudentLogic::delete);
 
@@ -189,7 +194,7 @@ public class App {
         ////////////////////// MATERIAS //////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
 
-       // FORMULARIO Y GUARDADO
+        // FORMULARIO Y GUARDADO
         get("/admin/materia/new", MateriaLogic::createMateriaForm, new MustacheTemplateEngine());
         post("/admin/materia/new", MateriaLogic::storeInDB, new MustacheTemplateEngine());
 
@@ -204,7 +209,7 @@ public class App {
         ///////////////////////////////////////////////////////////////////////////////
         ////////////////////// CATEDRAS ////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
-        
+
         // PROTECCIONES (Filtros antes de entrar a las rutas)
         before("/catedra/*", CatedraLogic::middleware);
         before("/catedras", CatedraLogic::middleware);
