@@ -235,7 +235,7 @@ public class App {
         get("/admin/carrera/new", CarreraLogic::createCarreraForm, new MustacheTemplateEngine());
 
         // 2. Procesar los datos y guardar la nueva carrera en la BD (POST)
-        post("/admin/carrera/new", CarreraLogic::storeInDB);
+        post("/admin/carrera/new", CarreraLogic::storeInDB, new MustacheTemplateEngine());
 
         // 3. Mostrar la tabla con el listado de todas las carreras (GET)
         get("/admin/carreras", CarreraLogic::listCarreras, new MustacheTemplateEngine());

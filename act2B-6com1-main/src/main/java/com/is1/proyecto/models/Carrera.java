@@ -23,4 +23,12 @@ public class Carrera extends Model {
     public void setNombreCarrera(String nombreCarrera) {
         set("nombre_carrera", nombreCarrera);
     }
+
+    public Integer getDuracion() {
+        return getInteger("duracion");
+    }
+
+    public void setDuracion(Integer duracion) {
+        set("duracion", duracion);
+    }
 }
