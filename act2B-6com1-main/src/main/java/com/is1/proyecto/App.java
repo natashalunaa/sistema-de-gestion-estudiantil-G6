@@ -6,6 +6,7 @@ import com.is1.proyecto.logic.MateriaLogic;
 import com.is1.proyecto.logic.CarreraLogic;
 import com.is1.proyecto.logic.CatedraLogic;
 import com.is1.proyecto.logic.CorrelatividadLogic;
+import com.is1.proyecto.models.Correlatividad;
 import com.is1.proyecto.logic.StudentLogic;
 import com.is1.proyecto.logic.TeacherLogic;
 import com.is1.proyecto.logic.UserLogic;
@@ -44,6 +45,16 @@ public class App {
                 // Abre una conexión a la base de datos utilizando las credenciales del
                 // singleton.
                 Base.open(dbConfig.getDriver(), dbConfig.getDbUrl(), dbConfig.getUser(), dbConfig.getPass());
+                try {
+                // Si la tabla de tipos de correlatividad está vacía, cargamos los datos necesarios
+                if (Correlatividad.count() == 0) {
+                    Base.exec("INSERT INTO correlatividad (id_correlatividad, correl) VALUES (1, 'Aprobado')");
+                    Base.exec("INSERT INTO correlatividad (id_correlatividad, correl) VALUES (2, 'Regular')");
+                    System.out.println("Datos iniciales de correlatividad cargados correctamente.");
+                }
+                } catch (Exception e) {
+                    System.err.println("No se pudieron cargar los datos iniciales: " + e.getMessage());
+                }
                 if ("org.sqlite.JDBC".equals(dbConfig.getDriver())) {
                     Base.exec("PRAGMA foreign_keys = ON;"); // para activar la foreign key solo en SQLite
                 }
