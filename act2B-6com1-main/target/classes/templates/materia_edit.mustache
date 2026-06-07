@@ -16,7 +16,7 @@
         </div>
         {{/errorMessage}}
 
-        <form action="/materia/edit/{{cod_materia}}" method="post" class="space-y-4" accept-charset="UTF-8">
+        <form action="/admin/materia/edit/{{cod_materia}}" method="post" class="space-y-4" accept-charset="UTF-8">
             <div>
                 <label class="block text-gray-700 text-sm font-medium mb-1">Código de Materia (No modificable):</label>
                 <input type="text" value="{{cod_materia}}" disabled
@@ -47,7 +47,7 @@
             </button>
 
             <div class="text-center mt-4">
-                <a href="/materias" class="text-blue-600 hover:underline text-sm block"> Volver al listado </a>
+                <a href="/admin/materias"class="text-blue-600 hover:underline text-sm block"> Volver al listado </a>
             </div>
         </form>
     </div>

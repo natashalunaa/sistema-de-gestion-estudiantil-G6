@@ -162,8 +162,7 @@ public class MateriaLogic {
 
         // si no existe, redirige al listado
         if (materia == null) {
-            res.redirect("/materias?error=Materia+no+encontrada");
-            return null;
+        res.redirect("/admin/materias?error=Materia+no+encontrada");            return null;
         }
 
         // encargado de rellenar los inputs del formulario
