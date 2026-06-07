@@ -288,13 +288,14 @@ CREATE TABLE IF NOT EXISTS materia_relacion (
 -- =========================
 -- CORRELATIVIDAD
 -- =========================
+
 CREATE TABLE IF NOT EXISTS materia_correlatividad (
-    id_correlatividad  BIGINT NOT NULL,
+
     materia_origen     VARCHAR(20) NOT NULL,
     materia_requerida  VARCHAR(20) NOT NULL,
+    id_correlatividad  BIGINT NOT NULL,
 
     PRIMARY KEY (
-        id_correlatividad,
         materia_origen,
         materia_requerida
     ),

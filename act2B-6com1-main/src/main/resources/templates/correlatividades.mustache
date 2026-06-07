@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Correlatividades</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-4">
+
+<div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl p-8">
+
+    <h1 class="text-3xl font-bold text-center mb-6">
+        Gestión de Correlatividades
+    </h1>
+
+    <!-- Mensajes -->
+
+    {{#errorMessage}}
+    <div class="bg-red-100 border border-red-400 text-red-700 p-4 rounded-lg mb-6">
+        {{errorMessage}}
+    </div>
+    {{/errorMessage}}
+
+    {{#successMessage}}
+    <div class="bg-green-100 border border-green-400 text-green-700 p-4 rounded-lg mb-6">
+        {{successMessage}}
+    </div>
+    {{/successMessage}}
+
+    <!-- Formulario -->
+
+    <div class="bg-slate-50 p-6 rounded-xl mb-8">
+
+        <h2 class="text-xl font-semibold mb-4">
+            Agregar correlatividad
+        </h2>
+
+        <form action="/materias/configurar-correlativas"
+              method="post"
+              class="space-y-4">
+
+            <!-- Materia -->
+
+            <div>
+
+                <label class="block mb-2 font-medium">
+                    Materia
+                </label>
+
+                <select name="materia_origen"
+                        class="w-full border rounded-lg p-2"
+                        required>
+
+                    <option value="">
+                        Seleccione...
+                    </option>
+
+                    {{#materias}}
+                    <option value="{{cod_materia}}">
+                        {{cod_materia}} - {{nombre_materia}}
+                    </option>
+                    {{/materias}}
+
+                </select>
+
+            </div>
+
+            <!-- Correlativa -->
+
+            <div>
+
+                <label class="block mb-2 font-medium">
+                    Materia requerida
+                </label>
+
+                <select name="materia_requerida"
+                        class="w-full border rounded-lg p-2"
+                        required>
+
+                    <option value="">
+                        Seleccione...
+                    </option>
+
+                    {{#materias}}
+                    <option value="{{cod_materia}}">
+                        {{cod_materia}} - {{nombre_materia}}
+                    </option>
+                    {{/materias}}
+
+                </select>
+
+            </div>
+
+            <button type="submit"
+                    class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+
+                Agregar correlatividad
+
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- Tabla -->
+
+    <h2 class="text-xl font-semibold mb-4">
+        Correlatividades registradas
+    </h2>
+
+    {{#correlativas}}
+
+    <div class="overflow-x-auto">
+
+        <table class="min-w-full border">
+
+            <thead class="bg-slate-100">
+
+            <tr>
+
+                <th class="border p-3">
+                    Tipo
+                </th>
+
+                <th class="border p-3">
+                    Materia
+                </th>
+
+                <th class="border p-3">
+                    Requiere
+                </th>
+
+                <th class="border p-3">
+                    Acción
+                </th>
+
+            </tr>
+
+            </thead>
+
+            <tbody>
+
+            {{#correlativas}}
+
+            <tr>
+
+                <td class="border p-3">
+                    {{id_correlatividad}}
+                </td>
+
+                <td class="border p-3">
+                    {{materia_origen}}
+                </td>
+
+                <td class="border p-3">
+                    {{materia_requerida}}
+                </td>
+
+                <td class="border p-3">
+
+                    <form action="/materias/eliminar-correlativa"
+                          method="post">
+
+                        <input type="hidden"
+                               name="materia_origen"
+                               value="{{materia_origen}}">
+
+                        <input type="hidden"
+                               name="materia_requerida"
+                               value="{{materia_requerida}}">
+
+                        <button type="submit"
+                                class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+
+                            Eliminar
+
+                        </button>
+
+                    </form>
+
+                </td>
+
+            </tr>
+
+            {{/correlativas}}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {{/correlativas}}
+
+    {{^correlativas}}
+
+    <div class="bg-yellow-100 p-4 rounded-lg text-center">
+
+        No existen correlatividades registradas.
+
+    </div>
+
+    {{/correlativas}}
+
+    <div class="mt-8">
+
+        <a href="/dashboard/admin"
+           class="bg-slate-600 text-white px-6 py-3 rounded-lg hover:bg-slate-700">
+
+            Volver al panel
+
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

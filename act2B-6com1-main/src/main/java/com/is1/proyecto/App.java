@@ -5,6 +5,7 @@ import com.is1.proyecto.logic.AdminLogic;
 import com.is1.proyecto.logic.MateriaLogic;
 import com.is1.proyecto.logic.CarreraLogic;
 import com.is1.proyecto.logic.CatedraLogic;
+import com.is1.proyecto.logic.CorrelatividadLogic;
 import com.is1.proyecto.logic.StudentLogic;
 import com.is1.proyecto.logic.TeacherLogic;
 import com.is1.proyecto.logic.UserLogic;
@@ -226,9 +227,8 @@ public class App {
         // Elimina una asignación existente entre un docente y una materia.
         post("/catedras/desasignar", CatedraLogic::desasignarDocente);
 
-
         ///////////////////////////////////////////////////////////////////////////////
-        //////////////////////    CARRERAS    ////////////////////////////////////////
+        ////////////////////// CARRERAS ////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
 
         // 1. Mostrar el formulario para registrar una nueva carrera (GET)
@@ -248,5 +248,19 @@ public class App {
 
         // 6. Eliminar una carrera de la base de datos (GET)
         get("/admin/carrera/delete/:cod_carrera", CarreraLogic::deleteCarrera);
+
+        ///////////////////////////////////////////////////////////////////////////////
+        ////////////////////// CORRELATIVIDADES //////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+
+        before("/materias/*", CorrelatividadLogic::middleware);
+
+        get("/materias/correlativas", CorrelatividadLogic::listarCorrelatividades, new MustacheTemplateEngine());
+
+        post("/materias/configurar-correlativas", CorrelatividadLogic::agregarCorrelatividad);
+
+        post("/materias/eliminar-correlativa", CorrelatividadLogic::eliminarCorrelatividad);
+
+        
     } // Fin del método main
 } // Fin de la clase App

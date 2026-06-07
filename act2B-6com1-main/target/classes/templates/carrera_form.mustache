@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Carrera</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-lg">
+        <h1 class="text-3xl font-bold text-center mb-6">Registrar carrera</h1>
+
+        {{#errorMessage}}
+        <div class="bg-red-100 border border-red-400 text-red-700 p-4 rounded-lg mb-6">
+            {{errorMessage}}
+        </div>
+        {{/errorMessage}}
+
+        <form action="/admin/carrera/new" method="post" class="space-y-4" accept-charset="UTF-8">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Código de Carrera</label>
+                <input type="text" name="cod_carrera" required placeholder="Ej: ISI"
+                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Nombre de la Carrera</label>
+                <input type="text" name="nombre_carrera" required placeholder="Ej: Ingeniería en Sistemas de Información"
+                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Duración (en años)</label>
+                <input type="number" name="duracion" required placeholder="Ej: 5" min="1" max="7"
+                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 font-medium">
+                Guardar carrera
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <a href="/dashboard/admin" class="text-gray-500 hover:underline text-sm font-medium">
+                Volver al panel
+            </a>
+        </div>
+    </div>
+</body>
+</html>
