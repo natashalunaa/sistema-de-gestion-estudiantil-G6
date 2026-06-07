@@ -85,8 +85,12 @@ public class MateriaLogic {
             m.setNombreMateria(nombreMateria);
             m.setAnioMateria(Integer.parseInt(anioMateria));
             m.setCodInscripcion(codInscripcion); // Puede ser nulo o vacío porque no tiene NOT NULL
-            
             m.insert();
+
+            // REDIRECCIÓN DIRECTA AL LISTADO
+            res.status(302);
+            res.redirect("/admin/materias");
+            return null;
         } catch (Exception e){
             e.printStackTrace();
             // si el error fue por las letras en el número, avisamos eso, sino mostramos el mensaje de la BD
@@ -97,13 +101,7 @@ public class MateriaLogic {
             }
             return new ModelAndView(model, "materia_form.mustache");
         } 
-
-        // redirigir a la lista
-        res.redirect("/materias");
-        return null;
     }
-
-    // Materias List
     public static ModelAndView listMaterias(Request req, Response res) {
         // Intenta obtener el nombre de usuario y la bandera de login de la sesión.
         String currentUsername = req.session().attribute("currentUserUsername");
@@ -117,15 +115,21 @@ public class MateriaLogic {
         Map<String, Object> model = new HashMap<>();
         List<Map<String, Object>> materiasList = new ArrayList<>();
 
-        LazyList<Materia> materias = Materia.findAll();
-        for (Materia m : materias) {
-            Map<String, Object> row = new HashMap<>();
-            // juntamos con los nuevos getters
-            row.put("cod_materia", m.getCodMateria());
-            row.put("nombre_materia", m.getNombreMateria());
-            row.put("anio_materia", m.getAnioMateria());
-            row.put("cod_inscripcion", m.getCodInscripcion() != null ? m.getCodInscripcion() : "-");
-            materiasList.add(row);
+        try {
+            LazyList<Materia> materias = Materia.findAll();
+            if (materias != null) {
+                for (Materia m : materias) {
+                    Map<String, Object> row = new HashMap<>();
+                    // juntamos con los nuevos getters
+                    row.put("cod_materia", m.getCodMateria());
+                    row.put("nombre_materia", m.getNombreMateria());
+                    row.put("anio_materia", m.getAnioMateria());
+                    row.put("cod_inscripcion", m.getCodInscripcion() != null ? m.getCodInscripcion() : "-");
+                    materiasList.add(row);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         model.put("materias", materiasList);
@@ -145,10 +149,9 @@ public class MateriaLogic {
             m.delete();
         }
         // una vez eliminado, se redirige al listado de materias
-        res.redirect("/materias");
+        res.redirect("/admin/materias");
         return null;
     }
-
     // GET: /materia/edit/:cod_materia (edit Materia)
     public static ModelAndView editMateriaForm(Request req, Response res) {
         // obtiene el código de la materia que viene en la URL
@@ -198,6 +201,11 @@ public class MateriaLogic {
                 
                 // .saveIt() es el método de ActiveJDBC que hace el update directo en Postgres
                 m.saveIt(); 
+
+                res.status(302);
+                res.redirect("/admin/materias");
+                return null;
+                
             } catch (Exception e) {
                 // si cargan texto en el año, relanzamos el formulario con error
                 Map<String, Object> model = new HashMap<>();
@@ -218,7 +226,7 @@ public class MateriaLogic {
         }
 
         // una vez guardados los cambios, volvemos a la lista general
-        res.redirect("/materias");
+        res.redirect("/admin/materias");
         return null;
     }
 }

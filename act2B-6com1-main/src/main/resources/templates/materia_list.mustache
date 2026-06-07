@@ -22,6 +22,7 @@
         </div>
         {{/errorMessage}}
 
+        {{#materias.size}}
         <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-slate-50">
@@ -42,12 +43,12 @@
                         <td class="px-6 py-4 text-sm text-gray-800">{{cod_inscripcion}}</td>
                         <td class="px-6 py-4 text-sm text-gray-800">
                             <div class="flex gap-2">
-                                <a href="/materia/edit/{{cod_materia}}"
+                                <a href="/admin/materia/edit/{{cod_materia}}"
                                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm font-medium">
                                     Editar
                                 </a>
                                 
-                                <form action="/materia/delete/{{cod_materia}}" method="post" 
+                                <form action="/admin/materia/delete/{{cod_materia}}" method="post" 
                                       onsubmit="return confirm('¿Está seguro que desea eliminar esta materia?')">
                                     <button type="submit"
                                             class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-medium">
@@ -61,17 +62,22 @@
                 </tbody>
             </table>
         </div>
+        {{/materias.size}}
 
-        {{^materias}}
+        {{^materias.size}}
         <div class="bg-yellow-50 border border-yellow-300 text-yellow-700 p-6 rounded-2xl text-center mt-4">
             No hay materias registradas todavía.
         </div>
-        {{/materias}}
+        {{/materias.size}}
 
-        <div class="mt-8">
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
             <a href="/dashboard/admin"
                class="inline-block bg-slate-600 text-white py-3 px-6 rounded-xl hover:bg-slate-700 text-center font-medium">
                 Volver al panel
+            </a>
+            <a href="/admin/materia/new"
+               class="inline-block bg-blue-600 text-white py-3 px-6 rounded-xl hover:bg-blue-700 text-center font-medium">
+                Registrar materia
             </a>
         </div>
     </div>

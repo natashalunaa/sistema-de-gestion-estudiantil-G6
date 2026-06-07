@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS materia (
     cod_materia        VARCHAR(20) PRIMARY KEY,
     nombre_materia     VARCHAR(100) NOT NULL,
     anio_materia       INTEGER NOT NULL,
-    cod_inscripcion    VARCHAR (20),
+    cod_inscripcion    VARCHAR (20)
 );
 
 CREATE TABLE IF NOT EXISTS examen_final (

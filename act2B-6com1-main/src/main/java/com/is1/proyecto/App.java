@@ -191,25 +191,17 @@ public class App {
         ////////////////////// MATERIAS //////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
 
-        // PROTECCIONES (Filtros antes de entrar a las rutas)
-        before("/materia/*", MateriaLogic::middleware);
-        before("/materias", MateriaLogic::middleware);
-
-        // FORMULARIO Y GUARDADO
-        get("/materia/new", MateriaLogic::createMateriaForm, new MustacheTemplateEngine());
-        post("/materia/new", MateriaLogic::storeInDB, new MustacheTemplateEngine());
+       // FORMULARIO Y GUARDADO
+        get("/admin/materia/new", MateriaLogic::createMateriaForm, new MustacheTemplateEngine());
+        post("/admin/materia/new", MateriaLogic::storeInDB, new MustacheTemplateEngine());
 
         // LISTADO GENERAL
-        get("/materias", MateriaLogic::listMaterias, new MustacheTemplateEngine());
+        get("/admin/materias", MateriaLogic::listMaterias, new MustacheTemplateEngine());
 
-        // ELIMINAR MATERIA
-        post("/materia/delete/:cod_materia", MateriaLogic::deleteMateria);
-
-        // MOSTRAR FORMULARIO DE EDICIÓN DE MATERIA
-        get("/materia/edit/:cod_materia", MateriaLogic::editMateriaForm, new MustacheTemplateEngine());
-
-        // GUARDAR CAMBIOS DE LA MATERIA MODIFICADA
-        post("/materia/edit/:cod_materia", MateriaLogic::editMateria);
+        // ELIMINAR, MOSTRAR EDICIÓN Y GUARDAR EDICIÓN
+        post("/admin/materia/delete/:cod_materia", MateriaLogic::deleteMateria);
+        get("/admin/materia/edit/:cod_materia", MateriaLogic::editMateriaForm, new MustacheTemplateEngine());
+        post("/admin/materia/edit/:cod_materia", MateriaLogic::editMateria);
 
         ///////////////////////////////////////////////////////////////////////////////
         ////////////////////// CATEDRAS ////////////////////////////
