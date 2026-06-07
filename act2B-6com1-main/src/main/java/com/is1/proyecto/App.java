@@ -131,8 +131,6 @@ public class App {
 
         // PROTECCIONES
         // Protecciones del estilo "before" para rutas privilegiadas
-        before("/student/*", StudentLogic::middleware);
-        before("/students", StudentLogic::middleware);
         before("/student/complete-profile", StudentLogic::middleware);
 
         // CREACION Y MANJEO DE ESTUDIANTES
