@@ -134,7 +134,8 @@ public class CarreraLogic {
         Carrera carrera = Carrera.findById(codCarrera);
 
         if (carrera == null) {
-            res.redirect("/carreras?error=Carrera+no+encontrada");
+            // CORREGIDO: Redirección al listado oficial si no existe la carrera
+            res.redirect("/admin/carreras?error=Carrera+no+encontrada");
             return null;
         }
 
@@ -169,7 +170,7 @@ public class CarreraLogic {
                 c.saveIt(); // Hace el UPDATE en Postgres
 
                 res.status(302);
-                res.redirect("/carreras");
+                res.redirect("/admin/carreras");
                 return null;
             } catch (Exception e) {
                 Map<String, Object> model = new HashMap<>();
@@ -186,7 +187,7 @@ public class CarreraLogic {
             }
         }
 
-        res.redirect("/carreras");
+        res.redirect("/admin/carreras");
         return null;
     }
 
@@ -212,7 +213,7 @@ public class CarreraLogic {
         }
 
         // Una vez eliminado, redirige al listado de carreras
-        res.redirect("/carreras");
+        res.redirect("/admin/carreras");
         return null;
     }
 }
