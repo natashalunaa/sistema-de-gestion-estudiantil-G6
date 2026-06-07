@@ -1,10 +1,20 @@
 package com.is1.proyecto.models;
 
 import org.javalite.activejdbc.Model;
+import org.javalite.activejdbc.annotations.IdName;
 import org.javalite.activejdbc.annotations.Table;
 
 @Table("materia_correlatividad")
+@IdName("id")
 public class MateriaCorrelatividad extends Model {
+
+    public Long getId() {
+        return getLong("id");
+    }
+
+    public void setId(Long id) {
+        set("id", id);
+    }
 
     public Long getIdCorrelatividad() {
         return getLong("id_correlatividad");
