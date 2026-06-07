@@ -247,7 +247,7 @@ public class App {
         post("/admin/carrera/edit/:cod_carrera", CarreraLogic::editCarrera);
 
         // 6. Eliminar una carrera de la base de datos (GET)
-        get("/admin/carrera/delete/:cod_carrera", CarreraLogic::deleteCarrera);
+        post("/admin/carrera/delete/:cod_carrera", CarreraLogic::deleteCarrera);
 
         ///////////////////////////////////////////////////////////////////////////////
         ////////////////////// CORRELATIVIDADES //////////////////////////
