@@ -1,14 +1,5 @@
 package com.is1.proyecto.logic;
 
-import com.is1.proyecto.models.Docente;
-import com.is1.proyecto.models.Persona;
-import com.is1.proyecto.models.Users;
-import org.javalite.activejdbc.LazyList;
-import org.mindrot.jbcrypt.BCrypt;
-import spark.ModelAndView;
-import spark.Request;
-import spark.Response;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +7,18 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.javalite.activejdbc.LazyList;
+import org.mindrot.jbcrypt.BCrypt;
+
 import static com.is1.proyecto.logic.UserLogic.isAdmin;
 import static com.is1.proyecto.logic.UserLogic.isAuthenticated;
+import com.is1.proyecto.models.Docente;
+import com.is1.proyecto.models.Persona;
+import com.is1.proyecto.models.Users;
+
+import spark.ModelAndView;
+import spark.Request;
+import spark.Response;
 import static spark.Spark.halt;
 
 public class TeacherLogic {
@@ -134,7 +135,7 @@ public class TeacherLogic {
         }
 
         // Redirigir a la lista
-        res.redirect("/teachers");
+        res.redirect("admin/teachers");
         return null;
     }
 
@@ -338,7 +339,7 @@ public class TeacherLogic {
         }
 
         // Vuelve al listado de docentes
-        res.redirect("/teachers");
+        res.redirect("admin/teachers");
 
         return null;
     }
@@ -369,12 +370,20 @@ public class TeacherLogic {
         Persona persona = Persona.findById(dni);
 
         // Si la persona existe, también la elimina.
+        //Si esa persona tiene un usuario, tambien debe eliminarse.
         if (persona != null) {
+            Users user = Users.findFirst("name = ?", persona.getMail());
+            if (user != null) {
+             user.delete();
+            }
+
             persona.delete();
         }
 
+        
+
         // Una vez eliminado, vuelve al listado de docentes.
-        res.redirect("/teachers");
+        res.redirect("admin/teachers");
 
         return null;
     }

@@ -1,22 +1,30 @@
 package com.is1.proyecto; // Define el paquete de la aplicación, debe coincidir con la estructura de carpetas.
 
-import com.is1.proyecto.config.DBConfigSingleton; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
+import java.util.HashMap; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
+
+import org.javalite.activejdbc.Base;
+
+import com.is1.proyecto.config.DBConfigSingleton;
 import com.is1.proyecto.logic.AdminLogic;
-import com.is1.proyecto.logic.MateriaLogic;
 import com.is1.proyecto.logic.CarreraLogic;
 import com.is1.proyecto.logic.CatedraLogic;
 import com.is1.proyecto.logic.CorrelatividadLogic;
-import com.is1.proyecto.models.Correlatividad;
+import com.is1.proyecto.logic.ExamenFinalLogic;
+import com.is1.proyecto.logic.InscripcionLogic;
+import com.is1.proyecto.logic.MateriaLogic;
 import com.is1.proyecto.logic.StudentLogic;
 import com.is1.proyecto.logic.TeacherLogic;
 import com.is1.proyecto.logic.UserLogic;
-import org.javalite.activejdbc.Base;
+import com.is1.proyecto.models.Correlatividad; // Para crear mapas de datos (modelos para las plantillas).
+
 import spark.ModelAndView;
-import spark.template.mustache.MustacheTemplateEngine; // Para crear mapas de datos (modelos para las plantillas).
-
-import java.util.HashMap;
-
-import static spark.Spark.*;
+import static spark.Spark.afterAfter;
+import static spark.Spark.before;
+import static spark.Spark.get;
+import static spark.Spark.halt;
+import static spark.Spark.port;
+import static spark.Spark.post;
+import spark.template.mustache.MustacheTemplateEngine;
 
 /**
  * Clase principal de la aplicación Spark.
@@ -145,6 +153,9 @@ public class App {
         // PROTECCIONES
         // Protecciones del estilo "before" para rutas privilegiadas
         before("/student/complete-profile", StudentLogic::middleware);
+        before("/dashboard/student", StudentLogic::middleware);
+        before("admin/student/edit/*", AdminLogic::middleware);
+        before("admin/student/delete/*", AdminLogic::middleware);
 
         // CREACION Y MANJEO DE ESTUDIANTES
         get(
@@ -164,12 +175,12 @@ public class App {
         post("/student/complete-profile", StudentLogic::completeProfile, new MustacheTemplateEngine());
 
         // Editar alumno
-        get("/student/edit/:dni", StudentLogic::editStudentForm, new MustacheTemplateEngine());
+        get("admin/student/edit/:dni", StudentLogic::editStudentForm, new MustacheTemplateEngine());
 
-        post("/student/edit/:dni", StudentLogic::editStudent, new MustacheTemplateEngine());
+        post("admim/student/edit/:dni", StudentLogic::editStudent, new MustacheTemplateEngine());
 
         // Eliminacion de estudiantes desde el dashboard del admin
-        post("/student/delete/:dni", StudentLogic::delete);
+        post("admin/student/delete/:dni", StudentLogic::delete);
 
         ///////////////////////////////////////////////////////////////////////////////
         ////////////////////// TEACHERS ////////////////////////////
@@ -177,35 +188,40 @@ public class App {
 
         // PROTECCIONES
         // Protecciones del estilo "before" para rutas privilegiadas
-        before("/teacher/*", TeacherLogic::middleware);
-        before("/teachers", TeacherLogic::middleware);
+        before("admin/teacher/*", TeacherLogic::middleware);
+        before("admin/teachers", TeacherLogic::middleware);
 
         // Api
-        get("/teacher/new", TeacherLogic::createTeacher, new MustacheTemplateEngine());
+        get("admin/teacher/new", TeacherLogic::createTeacher, new MustacheTemplateEngine());
 
-        post("/teacher/new", TeacherLogic::storeInDB, new MustacheTemplateEngine());
+        post("admin/teacher/new", TeacherLogic::storeInDB, new MustacheTemplateEngine());
 
         // GET: Listado de profesores
-        get("/teachers", TeacherLogic::listTeachers, new MustacheTemplateEngine());
+        get("admin/teachers", TeacherLogic::listTeachers, new MustacheTemplateEngine());
 
         // Dashboard de teacher
         get("/dashboard/teacher", TeacherLogic::dashboard, new MustacheTemplateEngine());
 
         // BUSCAR DOCENTE
-        get("/teachers/search", TeacherLogic::searchTeachers, new MustacheTemplateEngine());
+        get("admin/teachers/search", TeacherLogic::searchTeachers, new MustacheTemplateEngine());
 
         // MOSTRAR FORMULARIO DE EDICIÓN
-        get("/teacher/edit/:dni", TeacherLogic::editTeacherForm, new MustacheTemplateEngine());
+        get("admin/teacher/edit/:dni", TeacherLogic::editTeacherForm, new MustacheTemplateEngine());
 
         // GUARDAR CAMBIOS DEL DOCENTE
-        post("/teacher/edit/:dni", TeacherLogic::editTeacher);
+        post("admin/teacher/edit/:dni", TeacherLogic::editTeacher);
 
         // ELIMINAR DOCENTE
-        post("/teacher/delete/:dni", TeacherLogic::deleteTeacher);
+        post("admin/teacher/delete/:dni", TeacherLogic::deleteTeacher);
 
         ///////////////////////////////////////////////////////////////////////////////
         ////////////////////// MATERIAS //////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
+
+        //PROTECCIONES
+        before("/admin/materia/*", MateriaLogic::middleware);
+        before("/admin/materias", MateriaLogic::middleware);
+
 
         // FORMULARIO Y GUARDADO
         get("/admin/materia/new", MateriaLogic::createMateriaForm, new MustacheTemplateEngine());
@@ -224,19 +240,21 @@ public class App {
         ///////////////////////////////////////////////////////////////////////////////
 
         // PROTECCIONES (Filtros antes de entrar a las rutas)
-        before("/catedra/*", CatedraLogic::middleware);
-        before("/catedras", CatedraLogic::middleware);
+        before("admin/catedra/*", CatedraLogic::middleware);
+        before("admin/catedras", CatedraLogic::middleware);
 
         // Muestra la página principal de gestión de cátedras.
         // Permitirá visualizar las asignaciones actuales entre docentes y materias.
-        get("/catedras", CatedraLogic::listarCatedras, new MustacheTemplateEngine());
+        get("admin/catedras", CatedraLogic::listarCatedras, new MustacheTemplateEngine());
 
         // Recibe los datos del formulario y crea una nueva asignación
         // entre un docente y una materia.
-        post("/catedras/asignar", CatedraLogic::asignarDocente);
+        post("admin/catedras/asignar", CatedraLogic::asignarDocente);
 
         // Elimina una asignación existente entre un docente y una materia.
-        post("/catedras/desasignar", CatedraLogic::desasignarDocente);
+        post("admin/catedras/desasignar", CatedraLogic::desasignarDocente);
+
+        get("/teacher/mis-catedras", CatedraLogic::misCatedras, new MustacheTemplateEngine());
 
         ///////////////////////////////////////////////////////////////////////////////
         ////////////////////// CARRERAS ////////////////////////////////////////
@@ -273,5 +291,26 @@ public class App {
         post("/materias/eliminar-correlativa", CorrelatividadLogic::eliminarCorrelatividad);
 
         
-    } // Fin del método main
+    
+    
+    ///////////////////////////////////////////////////////////////////////////////
+    ////////////////////// INCRIPCIONES //////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+    
+        before("/inscripciones/*", InscripcionLogic::middleware);
+        
+        get("/inscripciones", InscripcionLogic::listarInscripciones, new MustacheTemplateEngine());
+        post("/inscripciones/inscribir/:cod_materia", InscripcionLogic::inscribirMateria);
+        get("/inscripciones/mis-inscripciones", InscripcionLogic::misInscripciones, new MustacheTemplateEngine());
+
+    ///////////////////////////////////////////////////////////////////////////////
+    ////////////////////// Examenes Finales //////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+    
+     before("/teacher/crear-examen", ExamenFinalLogic::middleware);
+     before("/teacher/examen-materia",)
+
+    
+    
+         } // Fin del método main
 } // Fin de la clase App

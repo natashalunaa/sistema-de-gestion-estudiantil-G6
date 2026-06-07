@@ -23,21 +23,32 @@
                         <th class="px-6 py-4">Código</th>
                         <th class="px-6 py-4">Nombre de la Carrera</th>
                         <th class="px-6 py-4 text-center">Duración (Años)</th>
+                        <th class="px-6 py-4 text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 text-gray-600">
                     
                     {{#carreras}}
                     <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4 font-medium text-gray-900">{{cod_carrera}}</td>
-                        <td class="px-6 py-4">{{nombre_carrera}}</td>
-                        <td class="px-6 py-4 text-center">{{duracion}}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900">{{cod_carrera}}</td>
+                    <td class="px-6 py-4">{{nombre_carrera}}</td>
+                    <td class="px-6 py-4 text-center">{{duracion}}</td>
+                    <td class="px-6 py-4 text-center space-x-2">
+                        <a href="/admin/carrera/edit/{{cod_carrera}}" class="text-blue-600 hover:text-blue-900 font-medium bg-blue-50 px-3 py-1 rounded-lg">
+                            Editar
+                        </a>
+                        <form action="/admin/carrera/delete/{{cod_carrera}}" method="POST" class="inline">
+                            <button type="submit" class="text-rose-600 hover:text-rose-900 font-medium bg-rose-50 px-3 py-1 rounded-lg" onclick="return confirm('¿Estás seguro de eliminar esta carrera?')">
+                                Eliminar
+                            </button>
+                        </form>
+                    </td>
                     </tr>
                     {{/carreras}}
 
                     {{^carreras}}
                     <tr>
-                        <td colspan="3" class="px-6 py-10 text-center text-gray-400">
+                        <td colspan="4" class="px-6 py-10 text-center text-gray-400">
                             No hay carreras registradas en el sistema todavía.
                         </td>
                     </tr>
