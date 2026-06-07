@@ -72,7 +72,7 @@ public class CarreraLogic {
 
             // Redirección directa al listado de carreras
             res.status(302);
-            res.redirect("/carreras");
+            res.redirect("/admin/carreras");
             return null;
 
         } catch (Exception e) {
@@ -117,7 +117,7 @@ public class CarreraLogic {
         }
 
         model.put("carreras", carrerasList);
-        return new ModelAndView(model, "carreras_list.mustache");
+        return new ModelAndView(model, "carrera_list.mustache");
     }
 
     // GET: /admin/carrera/edit/:cod_carrera
