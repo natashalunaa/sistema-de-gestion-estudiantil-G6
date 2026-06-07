@@ -37,14 +37,19 @@ public class UserLogic {
         String username = req.queryParams("username");
         String plainTextPassword = req.queryParams("password");
 
-        if (username == null || username.isEmpty() || plainTextPassword == null || plainTextPassword.isEmpty()) {
-            res.redirect("/?error=El nombre de usuario y la contraseña son requeridos.");
+        if (username == null || username.isEmpty()
+                || plainTextPassword == null
+                || plainTextPassword.isEmpty()) {
+
+            res.redirect("/?error=Debe completar todos los campos");
             return null;
         }
 
         Users ac = Users.findFirst("name = ?", username);
+
         if (ac == null || !BCrypt.checkpw(plainTextPassword, ac.getString("password"))) {
-            res.redirect("/?error=Usuario o contraseña incorrectos.");
+
+            res.redirect("/?error=Usuario incorrecto");
             return null;
         }
 
