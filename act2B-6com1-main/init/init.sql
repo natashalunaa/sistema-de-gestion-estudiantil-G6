@@ -66,7 +66,8 @@ CREATE TABLE IF NOT EXISTS alumno (
 
 CREATE TABLE IF NOT EXISTS carrera (
     cod_carrera        VARCHAR(20) PRIMARY KEY,
-    nombre_carrera     VARCHAR(255) NOT NULL
+    nombre_carrera     VARCHAR(255) NOT NULL,
+    duracion           INT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS plan_estudio (

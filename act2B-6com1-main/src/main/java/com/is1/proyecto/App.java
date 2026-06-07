@@ -238,7 +238,7 @@ public class App {
         post("/admin/carrera/new", CarreraLogic::storeInDB);
 
         // 3. Mostrar la tabla con el listado de todas las carreras (GET)
-        get("/carreras", CarreraLogic::listCarreras, new MustacheTemplateEngine());
+        get("/admin/carreras", CarreraLogic::listCarreras, new MustacheTemplateEngine());
 
         // 4. Mostrar el formulario para editar una carrera existente (GET)
         get("/admin/carrera/edit/:cod_carrera", CarreraLogic::editCarreraForm, new MustacheTemplateEngine());
