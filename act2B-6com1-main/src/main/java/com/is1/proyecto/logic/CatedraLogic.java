@@ -97,16 +97,8 @@ public class CatedraLogic {
             return null;
         }
 
-        // crea una nueva asignacion
-        DocenteResponsableMateria catedra = new DocenteResponsableMateria();
-
-        // guarda los datos recibidos
-        catedra.setDocenteDni(docenteDni);
-        catedra.setCodMateria(codMateria);
-
-        // inserta el registro en la base de datos
-        catedra.insert();
-
+        // crea y guarda la asignación
+        DocenteResponsableMateria.createIt("docente_dni", docenteDni, "cod_materia", codMateria);
         // una vez terminado vuelve al listado de catedras
         res.redirect("/catedras");
 
@@ -123,9 +115,7 @@ public class CatedraLogic {
 
         // Busca la asignación existente
         DocenteResponsableMateria asignacion = DocenteResponsableMateria.findFirst(
-                "docente_dni = ? and cod_materia = ?",
-                docenteDni,
-                codMateria);
+                "docente_dni = ? and cod_materia = ?",docenteDni,codMateria);
 
         // Si existe, la elimina
         if (asignacion != null) {

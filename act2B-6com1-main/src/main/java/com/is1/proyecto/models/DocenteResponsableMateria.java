@@ -1,9 +1,12 @@
 package com.is1.proyecto.models;
 
 import org.javalite.activejdbc.Model;
+import org.javalite.activejdbc.annotations.IdName;
 import org.javalite.activejdbc.annotations.Table;
 
 @Table("docente_responsable_materia")
+@IdName("id")
+
 public class DocenteResponsableMateria extends Model {
 
     public String getDocenteDni() {

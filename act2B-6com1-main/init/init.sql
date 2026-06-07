@@ -116,16 +116,18 @@ CREATE TABLE IF NOT EXISTS correlatividad (
 -- =========================
 
 CREATE TABLE IF NOT EXISTS docente_responsable_materia (
-    docente_dni        VARCHAR(20) NOT NULL,
-    cod_materia        VARCHAR(20) NOT NULL,
+    id BIGSERIAL PRIMARY KEY,
 
-    PRIMARY KEY (docente_dni, cod_materia),
+    docente_dni VARCHAR(20) NOT NULL,
+    cod_materia VARCHAR(20) NOT NULL,
 
-    FOREIGN KEY (docente_dni)
+    UNIQUE(docente_dni,cod_materia),
+
+    FOREIGN KEY(docente_dni)
         REFERENCES docente(dni)
         ON DELETE CASCADE,
 
-    FOREIGN KEY (cod_materia)
+    FOREIGN KEY(cod_materia)
         REFERENCES materia(cod_materia)
         ON DELETE CASCADE
 );
