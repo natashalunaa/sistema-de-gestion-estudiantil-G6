@@ -14,11 +14,11 @@ Hemos configurado el entorno utilizando contenedores Docker para mejor portabili
 ### Levantar el entorno
 Para compilar, construir la imagen y levantar el servidor web, ejecuta el siguiente comando en la terminal desde la raíz del proyecto:
 
-```bash
-Copy-Item .env.example .env 
-
-```bash
-docker compose up --build
+  # Copiar el archivo de configuración inicial
+  Copy-Item .env.example .env
+  
+  # Construir y levantar el contenedor del sistema
+  docker compose up --build
 
 ### Acceso al sistema:
 Una vez que el servidor esté listo, ingresa en tu navegador a: http://localhost:8505/
