@@ -146,7 +146,7 @@ public class TeacherLogic {
         }
 
         // Redirigir a la lista
-        res.redirect("admin/teachers");
+        res.redirect("/admin/teachers");
         return null;
     }
 
@@ -377,7 +377,7 @@ public class TeacherLogic {
         }
 
         // Vuelve al listado de docentes
-        res.redirect("admin/teachers");
+        res.redirect("/admin/teachers");
 
         return null;
     }
@@ -421,7 +421,7 @@ public class TeacherLogic {
         
 
         // Una vez eliminado, vuelve al listado de docentes.
-        res.redirect("admin/teachers");
+        res.redirect("/admin/teachers");
 
         return null;
     }

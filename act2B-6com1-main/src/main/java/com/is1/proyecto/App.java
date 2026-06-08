@@ -195,12 +195,12 @@ public class App {
         before("/dashboard/teacher", TeacherLogic::middlewareTeacher);
 
         // Api
-        get("admin/teacher/new", TeacherLogic::createTeacher, new MustacheTemplateEngine());
+        get("/admin/teacher/new", TeacherLogic::createTeacher, new MustacheTemplateEngine());
 
-        post("admin/teacher/new", TeacherLogic::storeInDB, new MustacheTemplateEngine());
+        post("/admin/teacher/new", TeacherLogic::storeInDB, new MustacheTemplateEngine());
 
         // GET: Listado de profesores
-        get("admin/teachers", TeacherLogic::listTeachers, new MustacheTemplateEngine());
+        get("/admin/teachers", TeacherLogic::listTeachers, new MustacheTemplateEngine());
 
         // Dashboard de teacher
         get("/dashboard/teacher", TeacherLogic::dashboard, new MustacheTemplateEngine());
