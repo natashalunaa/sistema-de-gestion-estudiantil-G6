@@ -31,11 +31,12 @@ Backend: Java (seleccionado por su confiabilidad).
 Frontend: Mustache (para la creación ágil de plantillas gráficas).
 
 ## Equipo de Desarrollo
-Cerrudo, Leila
-Fernandez, Nicolas
-Gonzalez, Joaquin
-Luna, Natasha
-Pari, Jennifer
+
+- Cerrudo, Leila
+- Fernandez, Nicolas
+- Gonzalez, Joaquin
+- Luna, Natasha
+- Pari, Jennifer
 
 ---
 
