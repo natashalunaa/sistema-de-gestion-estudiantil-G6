@@ -26,6 +26,12 @@ CREATE TYPE tper AS ENUM (
     'Anual'
 );
 
+CREATE TYPE tcondicion_final AS ENUM (
+    'Libre',
+    'Regular',
+    'Promocion'
+);
+
 -- =========================
 -- TABLAS BASE
 -- =========================
@@ -182,6 +188,7 @@ CREATE TABLE IF NOT EXISTS periodo_materia (
 CREATE TABLE IF NOT EXISTS alumno_materia (
     alumno_dni         VARCHAR(20) NOT NULL,
     cod_materia        VARCHAR(20) NOT NULL,
+    condicion_final    tcondicion_final NOT NULL DEFAULT 'Libre',
 
     PRIMARY KEY (alumno_dni, cod_materia),
 
@@ -193,6 +200,9 @@ CREATE TABLE IF NOT EXISTS alumno_materia (
         REFERENCES materia(cod_materia)
         ON DELETE CASCADE
 );
+
+ALTER TABLE alumno_materia
+    ADD COLUMN IF NOT EXISTS condicion_final tcondicion_final NOT NULL DEFAULT 'Libre';
 
 -- =========================
 -- RELACIONES ALUMNO - EXAMEN FINAL

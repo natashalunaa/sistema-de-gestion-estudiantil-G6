@@ -1,6 +1,8 @@
 package com.is1.proyecto.logic;
 
 import com.is1.proyecto.models.Alumno;
+import com.is1.proyecto.models.AlumnoMateria;
+import com.is1.proyecto.models.Materia;
 import com.is1.proyecto.models.Persona;
 import com.is1.proyecto.models.Users;
 import org.javalite.activejdbc.Base;
@@ -28,12 +30,37 @@ public class StudentLogic {
 
     // Dashboard
     public static ModelAndView dashboard(Request req, Response res) {
-        if (!isAuthenticated(req)) {
+        if (!isAuthenticated(req) || !ROLE_STUDENT.equals(req.session().attribute("role"))) {
             res.redirect("/?error=Acceso denegado.");
             return null;
         }
+
+        String currentUsername = req.session().attribute("currentUserUsername");
         Map<String, Object> model = new HashMap<>();
-        model.put("username", req.session().attribute("currentUserUsername"));
+        model.put("username", currentUsername);
+        model.put("successMessage", req.queryParams("success"));
+        model.put("errorMessage", req.queryParams("error"));
+
+        Persona persona = Persona.findFirst("mail = ? OR dni = ?", currentUsername, currentUsername);
+        if (persona != null) {
+            List<Map<String, Object>> materiasCursando = new ArrayList<>();
+            LazyList<AlumnoMateria> inscripciones = AlumnoMateria.where("alumno_dni = ?", persona.getDni());
+
+            for (AlumnoMateria inscripcion : inscripciones) {
+                Materia materia = Materia.findById(inscripcion.getCodMateria());
+                if (materia != null) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("cod_materia", materia.getCodMateria());
+                    row.put("nombre_materia", materia.getNombreMateria());
+                    row.put("anio_materia", materia.getAnioMateria());
+                    row.put("condicion_final", inscripcion.getCondicionFinal() != null ? inscripcion.getCondicionFinal() : "-");
+                    materiasCursando.add(row);
+                }
+            }
+
+            model.put("materiasCursando", materiasCursando);
+        }
+
         return new ModelAndView(model, "student_dashboard.mustache");
     }
 

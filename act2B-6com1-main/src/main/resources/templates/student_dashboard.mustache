@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estudiante - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -15,22 +16,61 @@
         </p>
         {{/username}}
 
+        {{#successMessage}}
+        <div class="bg-green-100 border border-green-400 text-green-700 p-4 rounded-xl mb-6 text-center">
+            {{successMessage}}
+        </div>
+        {{/successMessage}}
+
+        {{#errorMessage}}
+        <div class="bg-red-100 border border-red-400 text-red-700 p-4 rounded-xl mb-6 text-center">
+            {{errorMessage}}
+        </div>
+        {{/errorMessage}}
+
         <div class="space-y-4">
             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
                 <h2 class="text-2xl font-semibold mb-2">Tu cuenta</h2>
-                <p class="text-gray-600">Accede a tu información y sigue tus materias.</p>
+                <p class="text-gray-600">Accede a tu informacion y segui tus materias.</p>
             </div>
 
             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
-                <h2 class="text-2xl font-semibold mb-2">Estado</h2>
-                <p class="text-gray-600">Este panel es el espacio de inicio para estudiantes.</p>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                    <h2 class="text-2xl font-semibold">Materias que estoy cursando</h2>
+                    <div class="flex flex-col gap-2 sm:flex-row">
+                        <a href="/student/inscripciones/mis-inscripciones"
+                           class="inline-block bg-emerald-600 text-white py-2 px-4 rounded-xl hover:bg-emerald-700 text-center font-semibold">
+                            Mis inscripciones
+                        </a>
+                        <a href="/student/inscripciones"
+                           class="inline-block bg-blue-600 text-white py-2 px-4 rounded-xl hover:bg-blue-700 text-center font-semibold">
+                            Inscribirme
+                        </a>
+                    </div>
+                </div>
+
+                {{#materiasCursando}}
+                <div class="flex flex-col gap-2 border-t border-slate-200 py-4 first:border-t-0 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="font-semibold text-gray-800">{{nombre_materia}}</p>
+                        <p class="text-sm text-gray-500">{{cod_materia}} | Anio {{anio_materia}}</p>
+                    </div>
+                    <span class="inline-block self-start rounded-lg bg-slate-200 px-3 py-1 text-sm font-semibold text-slate-700 sm:self-auto">
+                        {{condicion_final}}
+                    </span>
+                </div>
+                {{/materiasCursando}}
+
+                {{^materiasCursando}}
+                <p class="text-gray-600">Todavia no estas cursando ninguna materia.</p>
+                {{/materiasCursando}}
             </div>
         </div>
 
         <div class="mt-10 text-center">
             <a href="/logout"
                class="inline-block bg-red-600 text-white py-3 px-8 rounded-full hover:bg-red-700">
-                Cerrar sesión
+                Cerrar sesion
             </a>
         </div>
     </div>

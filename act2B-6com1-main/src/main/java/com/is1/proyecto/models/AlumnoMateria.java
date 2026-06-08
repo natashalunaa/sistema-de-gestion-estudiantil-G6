@@ -1,6 +1,7 @@
 package com.is1.proyecto.models;
 
 import org.javalite.activejdbc.Model;
+import org.javalite.activejdbc.annotations.IdName;
 import org.javalite.activejdbc.annotations.Table;
 
 @Table("alumno_materia")
@@ -20,5 +21,13 @@ public class AlumnoMateria extends Model {
 
     public void setCodMateria(String codMateria) {
         set("cod_materia", codMateria);
+    }
+
+    public String getCondicionFinal() {
+        return getString("condicion_final");
+    }
+
+    public void setCondicionFinal(String condicionFinal) {
+        set("condicion_final", condicionFinal);
     }
 }

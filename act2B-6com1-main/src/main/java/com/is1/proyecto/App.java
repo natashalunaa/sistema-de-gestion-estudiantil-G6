@@ -38,10 +38,10 @@ public class App {
      */
     public static void main(String[] args) {
         String appPort = System.getenv("APP_PORT");
-        port(appPort != null && !appPort.isBlank() ? Integer.parseInt(appPort) : 8080); // Configura el puerto en el que
+        //port(appPort != null && !appPort.isBlank() ? Integer.parseInt(appPort) : 8080); // Configura el puerto en el que
         // la aplicación Spark escuchará
         // las peticiones
-        // port(85);
+        port(8505);
 
         // Obtener la instancia única del singleton de configuración de la base de
         // datos.
@@ -55,6 +55,16 @@ public class App {
                 // singleton.
                 Base.open(dbConfig.getDriver(), dbConfig.getDbUrl(), dbConfig.getUser(), dbConfig.getPass());
                 try {
+                    Base.exec(
+                            "DO $$ BEGIN "
+                                    + "CREATE TYPE tcondicion_final AS ENUM ('Libre', 'Regular', 'Promocion'); "
+                                    + "EXCEPTION WHEN duplicate_object THEN NULL; "
+                                    + "END $$;");
+                    Base.exec(
+                            "ALTER TABLE alumno_materia "
+                                    + "ADD COLUMN IF NOT EXISTS condicion_final "
+                                    + "tcondicion_final NOT NULL DEFAULT 'Libre'");
+
                     // Si la tabla de tipos de correlatividad está vacía, cargamos los datos necesarios
                     if (Correlatividad.count() == 0) {
                         Base.exec("INSERT INTO correlatividad (id_correlatividad, correl) VALUES (1, 'Aprobado')");
@@ -300,11 +310,9 @@ public class App {
         ////////////////////// INCRIPCIONES //////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
 
-        before("/inscripciones/*", InscripcionLogic::middleware);
-
-        get("/inscripciones", InscripcionLogic::listarInscripciones, new MustacheTemplateEngine());
-        post("/inscripciones/inscribir/:cod_materia", InscripcionLogic::inscribirMateria);
-        get("/inscripciones/mis-inscripciones", InscripcionLogic::misInscripciones, new MustacheTemplateEngine());
+        get("/student/inscripciones", InscripcionLogic::listarInscripciones, new MustacheTemplateEngine());
+        post("/student/inscripciones/inscribir/:cod_materia", InscripcionLogic::inscribirMateria);
+        get("/student/inscripciones/mis-inscripciones", InscripcionLogic::misInscripciones, new MustacheTemplateEngine());
 
         ///////////////////////////////////////////////////////////////////////////////
         ////////////////////// Examenes Finales //////////////////////////
