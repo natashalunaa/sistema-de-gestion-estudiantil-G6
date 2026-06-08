@@ -18,14 +18,12 @@ import com.is1.proyecto.logic.UserLogic;
 import com.is1.proyecto.models.Correlatividad; // Para crear mapas de datos (modelos para las plantillas).
 
 import spark.ModelAndView;
-
 import static spark.Spark.afterAfter;
 import static spark.Spark.before;
 import static spark.Spark.get;
 import static spark.Spark.halt;
 import static spark.Spark.port;
 import static spark.Spark.post;
-
 import spark.template.mustache.MustacheTemplateEngine;
 
 /**
@@ -193,6 +191,8 @@ public class App {
         // Protecciones del estilo "before" para rutas privilegiadas
         before("admin/teacher/*", TeacherLogic::middleware);
         before("admin/teachers", TeacherLogic::middleware);
+        before("/teacher/mis-estudiantes",TeacherLogic::middlewareTeacher);
+        before("/dashboard/teacher", TeacherLogic::middlewareTeacher);
 
         // Api
         get("admin/teacher/new", TeacherLogic::createTeacher, new MustacheTemplateEngine());
@@ -217,6 +217,10 @@ public class App {
         // ELIMINAR DOCENTE
         post("admin/teacher/delete/:dni", TeacherLogic::deleteTeacher);
 
+        //Ver los estudiantes asociados a un docente
+        get("/teacher/mis-estudiantes", TeacherLogic::misEstudiantes, new MustacheTemplateEngine());
+
+        
         ///////////////////////////////////////////////////////////////////////////////
         ////////////////////// MATERIAS //////////////////////////
         ///////////////////////////////////////////////////////////////////////////////

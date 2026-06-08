@@ -10,8 +10,10 @@ import java.util.regex.Pattern;
 import org.javalite.activejdbc.LazyList;
 import org.mindrot.jbcrypt.BCrypt;
 
+import static com.is1.proyecto.logic.UserLogic.ROLE_TEACHER;
 import static com.is1.proyecto.logic.UserLogic.isAdmin;
 import static com.is1.proyecto.logic.UserLogic.isAuthenticated;
+import com.is1.proyecto.models.AlumnoMateria;
 import com.is1.proyecto.models.Docente;
 import com.is1.proyecto.models.ExamenFinal;
 import com.is1.proyecto.models.Materia;
@@ -30,6 +32,13 @@ public class TeacherLogic {
 
     public static void middleware(Request req, Response res) {
         if (!isAuthenticated(req) || !isAdmin(req)) {
+            res.redirect("/?error=No autorizado");
+            halt(401);
+        }
+    }
+
+    public static void middlewareTeacher(Request req, Response res) {
+        if (!isAuthenticated(req) || !ROLE_TEACHER.equals(req.session().attribute("role"))) {
             res.redirect("/?error=No autorizado");
             halt(401);
         }
@@ -416,4 +425,52 @@ public class TeacherLogic {
 
         return null;
     }
+
+
+    //GET /teacher/mis-estudiantes
+    public static ModelAndView misEstudiantes(Request req, Response res) {
+        if (!isAuthenticated(req) || !ROLE_TEACHER.equals(req.session().attribute("role"))) {
+            res.redirect("/?error=No autorizado");
+            return null;
+        }
+
+        String currentUsername = req.session().attribute("currentUserUsername");
+        Persona docente = Persona.findFirst("mail = ? OR dni = ?", currentUsername, currentUsername);
+        if (docente == null) {
+            res.redirect("/?error=Docente no encontrado");
+            return null;
+        }
+
+        Map<String, Object> model = new HashMap<>();
+        List<Map<String, Object>> materiasList = new ArrayList<>();
+
+        LazyList<Materia> materias = Materia.find(
+                "cod_materia IN (SELECT cod_materia FROM docente_responsable_materia WHERE docente_dni = ?)",
+                docente.getDni());
+                 for (Materia materia : materias) {
+            Map<String, Object> materiaRow = new HashMap<>();
+            materiaRow.put("cod_materia", materia.getCodMateria());
+            materiaRow.put("nombre_materia", materia.getNombreMateria());
+
+            List<Map<String, Object>> estudiantes = new ArrayList<>();
+            LazyList<AlumnoMateria> inscripciones = AlumnoMateria.where("cod_materia = ?", materia.getCodMateria());
+            for (AlumnoMateria inscripcion : inscripciones) {
+                Persona alumnoPersona = Persona.findById(inscripcion.getAlumnoDni());
+                if (alumnoPersona != null) {
+                    Map<String, Object> alumnoRow = new HashMap<>();
+                    alumnoRow.put("dni", alumnoPersona.getDni());
+                    alumnoRow.put("nombre", alumnoPersona.getNombre());
+                    alumnoRow.put("apellido", alumnoPersona.getApellido());
+                    alumnoRow.put("mail", alumnoPersona.getMail());
+                    estudiantes.add(alumnoRow);
+                }
+            }
+            materiaRow.put("estudiantes", estudiantes);
+            materiasList.add(materiaRow);
+        }
+
+        model.put("materias", materiasList);
+        return new ModelAndView(model, "mis_estudiantes.mustache");
+    }
+
 }

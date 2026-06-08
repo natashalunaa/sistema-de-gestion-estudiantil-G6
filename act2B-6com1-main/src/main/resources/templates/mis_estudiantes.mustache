@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis estudiantes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4">
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl p-8">
+        <h1 class="text-3xl font-bold text-center mb-6">Mis estudiantes</h1>
+
+        {{#materias}}
+        <div class="mb-8 border border-slate-200 rounded-3xl p-6">
+            <h2 class="text-2xl font-semibold mb-2">{{nombre_materia}}</h2>
+            <p class="text-sm text-gray-500 mb-4">Código: {{cod_materia}}</p>
+
+            {{#estudiantes}}
+            <div class="space-y-3">
+                <div class="rounded-2xl border border-slate-200 p-4">
+                    <p class="font-semibold text-gray-800">{{apellido}}, {{nombre}}</p>
+                    <p class="text-sm text-gray-500">DNI: {{dni}} | Mail: {{mail}}</p>
+                </div>
+            </div>
+            {{/estudiantes}}
+
+            {{^estudiantes}}
+            <p class="text-gray-600">No hay estudiantes inscriptos en esta materia.</p>
+            {{/estudiantes}}
+        </div>
+        {{/materias}}
+
+        {{^materias}}
+        <div class="text-center text-gray-600">
+            No tienes materias asignadas por el momento.
+        </div>
+        {{/materias}}
+
+        <div class="mt-8 text-center">
+            <a href="/dashboard/teacher"
+               class="inline-block bg-blue-600 text-white py-3 px-8 rounded-full hover:bg-blue-700">
+                Volver al panel
+            </a>
+        </div>
+    </div>
+</body>
+</html>
