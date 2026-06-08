@@ -22,7 +22,5 @@ COPY --from=build /app/target/*.jar app.jar
 # Puerto (si tu app expone alguno)
 EXPOSE 8080
 
-COPY /db /app/db
-
 # Ejecutamos la app
 CMD ["java", "-jar", "app.jar"]

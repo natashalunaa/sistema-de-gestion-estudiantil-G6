@@ -13,6 +13,8 @@ import org.mindrot.jbcrypt.BCrypt;
 import static com.is1.proyecto.logic.UserLogic.isAdmin;
 import static com.is1.proyecto.logic.UserLogic.isAuthenticated;
 import com.is1.proyecto.models.Docente;
+import com.is1.proyecto.models.ExamenFinal;
+import com.is1.proyecto.models.Materia;
 import com.is1.proyecto.models.Persona;
 import com.is1.proyecto.models.Users;
 
@@ -187,8 +189,35 @@ public class TeacherLogic {
             res.redirect("/?error=Acceso denegado.");
             return null;
         }
+        String currentUsername = req.session().attribute("currentUserUsername");
         Map<String, Object> model = new HashMap<>();
-        model.put("username", req.session().attribute("currentUserUsername"));
+        model.put("username", currentUsername);
+        model.put("successMessage", req.queryParams("success"));
+        model.put("errorMessage", req.queryParams("error"));
+
+        Persona docente = Persona.findFirst("mail = ? OR dni = ?", currentUsername, currentUsername);
+        if (docente != null) {
+            LazyList<Materia> materias = Materia.find(
+                    "cod_materia IN (SELECT cod_materia FROM docente_responsable_materia WHERE docente_dni = ?)",
+                    docente.getDni());
+            model.put("materias", materias);
+
+            List<Map<String, Object>> examenes = new ArrayList<>();
+            LazyList<ExamenFinal> finales = ExamenFinal.find(
+                    "cod_materia IN (SELECT cod_materia FROM docente_responsable_materia WHERE docente_dni = ?)",
+                    docente.getDni());
+            for (ExamenFinal examen : finales) {
+                Materia materia = Materia.findById(examen.getCodMateria());
+                Map<String, Object> row = new HashMap<>();
+                row.put("id_examen", examen.getIdExamen());
+                row.put("fecha", examen.getFecha());
+                row.put("cod_materia", examen.getCodMateria());
+                row.put("nombre_materia", materia != null ? materia.getNombreMateria() : examen.getCodMateria());
+                examenes.add(row);
+            }
+            model.put("examenes", examenes);
+        }
+
         return new ModelAndView(model, "teacher_dashboard.mustache");
     }
 

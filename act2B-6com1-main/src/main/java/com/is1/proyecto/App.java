@@ -18,22 +18,25 @@ import com.is1.proyecto.logic.UserLogic;
 import com.is1.proyecto.models.Correlatividad; // Para crear mapas de datos (modelos para las plantillas).
 
 import spark.ModelAndView;
+
 import static spark.Spark.afterAfter;
 import static spark.Spark.before;
 import static spark.Spark.get;
 import static spark.Spark.halt;
 import static spark.Spark.port;
 import static spark.Spark.post;
+
 import spark.template.mustache.MustacheTemplateEngine;
 
 /**
- * Clase principal de la aplicación Spark.
- * Configura las rutas, filtros y el inicio del servidor web.
+ * Clase principal de la aplicación Spark. Configura las rutas, filtros y el
+ * inicio del servidor web.
  */
 public class App {
+
     /**
-     * Método principal que se ejecuta al iniciar la aplicación.
-     * Aquí se configuran todas las rutas y filtros de Spark.
+     * Método principal que se ejecuta al iniciar la aplicación. Aquí se
+     * configuran todas las rutas y filtros de Spark.
      */
     public static void main(String[] args) {
         String appPort = System.getenv("APP_PORT");
@@ -54,12 +57,12 @@ public class App {
                 // singleton.
                 Base.open(dbConfig.getDriver(), dbConfig.getDbUrl(), dbConfig.getUser(), dbConfig.getPass());
                 try {
-                // Si la tabla de tipos de correlatividad está vacía, cargamos los datos necesarios
-                if (Correlatividad.count() == 0) {
-                    Base.exec("INSERT INTO correlatividad (id_correlatividad, correl) VALUES (1, 'Aprobado')");
-                    Base.exec("INSERT INTO correlatividad (id_correlatividad, correl) VALUES (2, 'Regular')");
-                    System.out.println("Datos iniciales de correlatividad cargados correctamente.");
-                }
+                    // Si la tabla de tipos de correlatividad está vacía, cargamos los datos necesarios
+                    if (Correlatividad.count() == 0) {
+                        Base.exec("INSERT INTO correlatividad (id_correlatividad, correl) VALUES (1, 'Aprobado')");
+                        Base.exec("INSERT INTO correlatividad (id_correlatividad, correl) VALUES (2, 'Regular')");
+                        System.out.println("Datos iniciales de correlatividad cargados correctamente.");
+                    }
                 } catch (Exception e) {
                     System.err.println("No se pudieron cargar los datos iniciales: " + e.getMessage());
                 }
@@ -73,8 +76,8 @@ public class App {
                 // solicitud
                 // con un código de estado 500 (Internal Server Error) y un mensaje JSON.
                 System.err.println("Error al abrir conexión con ActiveJDBC: " + e.getMessage());
-                halt(500, "{\"error\": \"Error interno del servidor: Fallo al conectar a la base de datos.\"}" +
-                        e.getMessage());
+                halt(500, "{\"error\": \"Error interno del servidor: Fallo al conectar a la base de datos.\"}"
+                        + e.getMessage());
             }
         });
 
@@ -98,12 +101,12 @@ public class App {
         // Soporta la visualización de mensajes de éxito o error pasados como query
         // parameters.
         get("/user/create", UserLogic::createUser, new MustacheTemplateEngine()); // Especifica el motor de plantillas
-                                                                                  // para esta ruta.
+        // para esta ruta.
 
         // GET: Ruta para mostrar el dashboard (panel de control) del usuario.
         // Requiere que el usuario esté autenticado.
         get("/dashboard", UserLogic::dashboard, new MustacheTemplateEngine()); // Especifica el motor de plantillas para
-                                                                               // esta ruta.
+        // esta ruta.
 
         // GET: Ruta para cerrar la sesión del usuario.
         get("/logout", UserLogic::logout);
@@ -119,7 +122,7 @@ public class App {
         // En una aplicación real, probablemente querrías unificar con '/user/create'
         // para evitar duplicidad.
         get("/user/new", UserLogic::createUser, new MustacheTemplateEngine()); // Especifica el motor de plantillas para
-                                                                               // esta ruta.
+        // esta ruta.
         // POST: Maneja el envío del formulario de creación de nueva cuenta.
         post("/user/new", UserLogic::registerNewUser);
 
@@ -222,7 +225,6 @@ public class App {
         before("/admin/materia/*", MateriaLogic::middleware);
         before("/admin/materias", MateriaLogic::middleware);
 
-
         // FORMULARIO Y GUARDADO
         get("/admin/materia/new", MateriaLogic::createMateriaForm, new MustacheTemplateEngine());
         post("/admin/materia/new", MateriaLogic::storeInDB, new MustacheTemplateEngine());
@@ -290,27 +292,28 @@ public class App {
 
         post("/materias/eliminar-correlativa", CorrelatividadLogic::eliminarCorrelatividad);
 
-        
-    
-    
-    ///////////////////////////////////////////////////////////////////////////////
-    ////////////////////// INCRIPCIONES //////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////
-    
+        ///////////////////////////////////////////////////////////////////////////////
+        ////////////////////// INCRIPCIONES //////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+
         before("/inscripciones/*", InscripcionLogic::middleware);
-        
+
         get("/inscripciones", InscripcionLogic::listarInscripciones, new MustacheTemplateEngine());
         post("/inscripciones/inscribir/:cod_materia", InscripcionLogic::inscribirMateria);
         get("/inscripciones/mis-inscripciones", InscripcionLogic::misInscripciones, new MustacheTemplateEngine());
 
-    ///////////////////////////////////////////////////////////////////////////////
-    ////////////////////// Examenes Finales //////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////
-    
-     before("/teacher/crear-examen", ExamenFinalLogic::middleware);
-     before("/teacher/examen-materia",)
+        ///////////////////////////////////////////////////////////////////////////////
+        ////////////////////// Examenes Finales //////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-    
-    
-         } // Fin del método main
+        before("/teacher/crear-examen/:cod_materia", ExamenFinalLogic::middleware);
+        before("/teacher/examen-final/:id_examen/nota", ExamenFinalLogic::middleware);
+        before("/teacher/examen-materia", ExamenFinalLogic::middleware);
+
+        get("/teacher/crear-examen/:cod_materia", ExamenFinalLogic::crearExamenForm, new MustacheTemplateEngine());
+        post("/teacher/crear-examen/:cod_materia", ExamenFinalLogic::crearExamen);
+        get("/teacher/examen-final/:id_examen/nota", ExamenFinalLogic::cargarNotaForm, new MustacheTemplateEngine());
+        post("/teacher/examen-final/:id_examen/nota", ExamenFinalLogic::cargarNota);
+
+    } // Fin del método main
 } // Fin de la clase App

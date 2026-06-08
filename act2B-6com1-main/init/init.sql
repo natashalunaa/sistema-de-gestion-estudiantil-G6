@@ -95,8 +95,12 @@ CREATE TABLE IF NOT EXISTS materia (
 
 CREATE TABLE IF NOT EXISTS examen_final (
     id_examen          BIGSERIAL PRIMARY KEY,
+    cod_materia        VARCHAR(20) NOT NULL,
     fecha              DATE NOT NULL,
-    nota               NUMERIC(4,2)
+    
+    FOREIGN KEY (cod_materia)
+        REFERENCES materia(cod_materia)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS periodo (
@@ -197,6 +201,7 @@ CREATE TABLE IF NOT EXISTS alumno_materia (
 CREATE TABLE IF NOT EXISTS alumno_examen_final (
     alumno_dni         VARCHAR(20) NOT NULL,
     id_examen          BIGINT NOT NULL,
+    nota               NUMERIC(4,2),
 
     PRIMARY KEY (alumno_dni, id_examen),
 
@@ -206,25 +211,6 @@ CREATE TABLE IF NOT EXISTS alumno_examen_final (
 
     FOREIGN KEY (id_examen)
         REFERENCES examen_final(id_examen)
-        ON DELETE CASCADE
-);
-
--- =========================
--- RELACIONES EXAMEN FINAL - MATERIA
--- =========================
-
-CREATE TABLE IF NOT EXISTS examen_final_materia (
-    id_examen          BIGINT NOT NULL,
-    cod_materia        VARCHAR(20) NOT NULL,
-
-    PRIMARY KEY (id_examen, cod_materia),
-
-    FOREIGN KEY (id_examen)
-        REFERENCES examen_final(id_examen)
-        ON DELETE CASCADE,
-
-    FOREIGN KEY (cod_materia)
-        REFERENCES materia(cod_materia)
         ON DELETE CASCADE
 );
 

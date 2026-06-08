@@ -66,7 +66,7 @@ public static ModelAndView listarInscripciones(Request req, Response res) {
     LazyList<Materia> materias = Materia.findAll();
 
     //Filtra las materias a las que el alumno no esta inscripto
-    LazyList<AlumnoMateria> inscripcionesAlumno = AlumnoMateria.where("dni_alumno = ?", dniAlumno);
+    LazyList<AlumnoMateria> inscripcionesAlumno = AlumnoMateria.where("alumno_dni = ?", dniAlumno);
     for (AlumnoMateria inscripcion : inscripcionesAlumno) {
         String codMateriaInscripta = inscripcion.getCodMateria();
         materias.removeIf(m -> m.getCodMateria().equals(codMateriaInscripta));
@@ -114,14 +114,14 @@ public static ModelAndView inscribirMateria(Request req, Response res) {
     }
 
     //Verifica que el usuario no esté ya inscripto en esa materia
-    AlumnoMateria inscripcionExistente = AlumnoMateria.findFirst("dni_alumno = ? AND cod_materia = ?", currentUsername, codMateria);
+    AlumnoMateria inscripcionExistente = AlumnoMateria.findFirst("alumno_dni = ? AND cod_materia = ?", alumno.getDni(), codMateria);
     if (inscripcionExistente != null) {
         res.redirect("/inscripciones?error=Ya estás inscripto en esta materia");
         return null;
     }
 
     // Crea la inscripción
-    AlumnoMateria.createIt("dni_alumno", currentUsername, "cod_materia", codMateria);
+    AlumnoMateria.createIt("alumno_dni", alumno.getDni(), "cod_materia", codMateria);
     res.redirect("/inscripciones?success=Inscripción realizada con éxito");
     return null;
 }
@@ -155,7 +155,7 @@ public static ModelAndView misInscripciones(Request req, Response res) {
         Map<String, Object> model = new HashMap<>();
     
         // Obtiene las inscripciones del alumno
-        LazyList<AlumnoMateria> inscripcionesAlumno = AlumnoMateria.where("dni_alumno = ?", alumno.getDni());
+        LazyList<AlumnoMateria> inscripcionesAlumno = AlumnoMateria.where("alumno_dni = ?", alumno.getDni());
     
         // Carga las materias en las que el alumno está inscripto
         List<Map<String, Object>> materiasInscripto = new ArrayList<>();

@@ -1,7 +1,7 @@
 package com.is1.proyecto.models;
 
-import java.math.BigDecimal;
 import java.util.Date;
+
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.IdName;
 import org.javalite.activejdbc.annotations.Table;
@@ -26,11 +26,11 @@ public class ExamenFinal extends Model {
         set("fecha", fecha);
     }
 
-    public BigDecimal getNota() {
-        return getBigDecimal("nota");
+    public String getCodMateria() {
+        return getString("cod_materia");
     }
 
-    public void setNota(BigDecimal nota) {
-        set("nota", nota);
+    public void setCodMateria(String codMateria) {
+        set("cod_materia", codMateria);
     }
 }

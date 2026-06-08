@@ -8,7 +8,6 @@ import org.javalite.activejdbc.LazyList;
 import static com.is1.proyecto.logic.UserLogic.ROLE_TEACHER;
 import static com.is1.proyecto.logic.UserLogic.isAuthenticated;
 import com.is1.proyecto.models.ExamenFinal;
-import com.is1.proyecto.models.ExamenFinalMateria;
 import com.is1.proyecto.models.Materia;
 import com.is1.proyecto.models.Persona;
 
@@ -86,7 +85,8 @@ public class ExamenMateriaLogic {
         }
 
         // Crear la relación entre el examen y la materia
-        ExamenFinalMateria.createIt("id_examen", idExamen, "cod_materia", codMateria);
+        examen.setCodMateria(codMateria);
+        examen.saveIt();
         res.redirect("/teacher/mis-catedras?success=Examen programado con éxito");  
         return null;
     }

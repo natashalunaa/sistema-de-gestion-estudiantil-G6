@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Docente - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -15,22 +16,73 @@
         </p>
         {{/username}}
 
+        {{#successMessage}}
+        <div class="bg-green-100 border border-green-400 text-green-700 p-4 rounded-xl mb-6 text-center">
+            {{successMessage}}
+        </div>
+        {{/successMessage}}
+
+        {{#errorMessage}}
+        <div class="bg-red-100 border border-red-400 text-red-700 p-4 rounded-xl mb-6 text-center">
+            {{errorMessage}}
+        </div>
+        {{/errorMessage}}
+
         <div class="space-y-4">
             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
                 <h2 class="text-2xl font-semibold mb-2">Tus permisos</h2>
-                <p class="text-gray-600">Accede a la información disponible para docentes.</p>
+                <p class="text-gray-600">Accede a la informacion disponible para docentes.</p>
             </div>
 
             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
-                <h2 class="text-2xl font-semibold mb-2">Próximamente</h2>
-                <p class="text-gray-600">Aquí puedes agregar más acciones específicas para docentes.</p>
+                <h2 class="text-2xl font-semibold mb-4">Mis materias</h2>
+
+                {{#materias}}
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-slate-200 py-4 first:border-t-0 first:pt-0 last:pb-0">
+                    <div>
+                        <p class="font-semibold text-gray-800">{{nombreMateria}}</p>
+                        <p class="text-sm text-gray-500">{{codMateria}}</p>
+                    </div>
+
+                    <a href="/teacher/crear-examen/{{codMateria}}"
+                       class="inline-block bg-blue-600 text-white py-2 px-4 rounded-xl hover:bg-blue-700 text-center font-semibold">
+                        Crear final
+                    </a>
+                </div>
+                {{/materias}}
+
+                {{^materias}}
+                <p class="text-gray-600">No tenes materias asignadas.</p>
+                {{/materias}}
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                <h2 class="text-2xl font-semibold mb-4">Examenes finales</h2>
+
+                {{#examenes}}
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-slate-200 py-4 first:border-t-0 first:pt-0 last:pb-0">
+                    <div>
+                        <p class="font-semibold text-gray-800">{{nombre_materia}}</p>
+                        <p class="text-sm text-gray-500">{{cod_materia}} | {{fecha}}</p>
+                    </div>
+
+                    <a href="/teacher/examen-final/{{id_examen}}/nota"
+                       class="inline-block bg-emerald-600 text-white py-2 px-4 rounded-xl hover:bg-emerald-700 text-center font-semibold">
+                        Cargar nota
+                    </a>
+                </div>
+                {{/examenes}}
+
+                {{^examenes}}
+                <p class="text-gray-600">Todavia no hay examenes finales creados.</p>
+                {{/examenes}}
             </div>
         </div>
 
         <div class="mt-10 text-center">
             <a href="/logout"
                class="inline-block bg-red-600 text-white py-3 px-8 rounded-full hover:bg-red-700">
-                Cerrar sesión
+                Cerrar sesion
             </a>
         </div>
     </div>
