@@ -38,10 +38,10 @@ public class App {
      */
     public static void main(String[] args) {
         String appPort = System.getenv("APP_PORT");
-        //port(appPort != null && !appPort.isBlank() ? Integer.parseInt(appPort) : 8080); // Configura el puerto en el que
+        port(appPort != null && !appPort.isBlank() ? Integer.parseInt(appPort) : 8080); // Configura el puerto en el que
         // la aplicación Spark escuchará
         // las peticiones
-        port(8505);
+        //port(8505);
 
         // Obtener la instancia única del singleton de configuración de la base de
         // datos.
