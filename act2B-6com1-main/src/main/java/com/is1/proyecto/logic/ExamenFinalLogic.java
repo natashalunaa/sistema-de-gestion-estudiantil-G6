@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.LazyList;
 
 import static com.is1.proyecto.logic.UserLogic.ROLE_TEACHER;
@@ -195,7 +196,7 @@ public class ExamenFinalLogic {
             return null;
         }
 
-        AlumnoExamenFinal alumnoExamen = AlumnoExamenFinal.findFirst(
+        /*AlumnoExamenFinal alumnoExamen = AlumnoExamenFinal.findFirst(
                 "alumno_dni = ? AND id_examen = ?",
                 alumnoDni, examen.getIdExamen());
         if (alumnoExamen == null) {
@@ -204,20 +205,22 @@ public class ExamenFinalLogic {
         }
 
         alumnoExamen.setNota(nota);
-        alumnoExamen.saveIt();
+        alumnoExamen.saveIt();*/
 
-         AlumnoMateria alumnoMateria = AlumnoMateria.findFirst(
-                    "alumno_dni = ? AND cod_materia = ?",
-                    alumnoDni, examen.getCodMateria());
+        Base.exec(
+                "UPDATE alumno_examen_final SET nota = ? " +
+                    "WHERE alumno_dni = ? AND id_examen = ?;",
+                nota, alumnoDni, examen.getIdExamen());
+
+        String condFinal = "Libre";
 
          if (nota.compareTo(new BigDecimal("6")) >= 0) {
-                alumnoMateria.setCondicionFinal("Regular");
-                alumnoMateria.saveIt();
-            } else {
-                alumnoMateria.setCondicionFinal("Libre");
-                alumnoMateria.saveIt();
+                condFinal = "Regular";
             }
-    
+        Base.exec(
+                "UPDATE alumno_materia SET condicion_final = ? " +
+                    "WHERE alumno_dni = ? AND cod_materia = ?;",
+                condFinal, alumnoDni, examen.getCodMateria());
 
         res.redirect(volver + "?success=Nota cargada correctamente");
         return null;
@@ -237,7 +240,15 @@ public class ExamenFinalLogic {
         }
 
         String idExamen = req.params(":id_examen");
-        ExamenFinal examen = ExamenFinal.findById(idExamen);
+        Long idExamenLong;
+        try {
+            idExamenLong = Long.valueOf(idExamen);
+        } catch (NumberFormatException e) {
+            res.redirect("/teacher/examenes?error=ID de examen inválido");
+            return null;
+        }
+
+        ExamenFinal examen = ExamenFinal.findById(idExamenLong);
         if (examen == null) {
             res.redirect("/dashboard/teacher?error=Examen final no encontrado");
             return null;

@@ -190,6 +190,20 @@ public class InscripcionLogic {
         Boolean loggedIn = req.session().attribute("loggedIn");
         String idExamen = req.params(":id_examen");
 
+         Long idExamenLong;
+        try {
+            idExamenLong = Long.valueOf(idExamen);
+        } catch (NumberFormatException e) {
+            res.redirect("/student/examenes?error=ID de examen inválido");
+            return null;
+        }
+
+        ExamenFinal examen = ExamenFinal.findById(idExamenLong);
+        if (examen == null) {
+            res.redirect("/student/examenes?error=Examen no encontrado");
+            return null;
+        }
+
         if (currentUsername == null || loggedIn == null || !loggedIn) {
             res.redirect("/student/examenes?error=No autorizado");
             return null;
@@ -201,28 +215,25 @@ public class InscripcionLogic {
             return null;
         }
 
-        ExamenFinal examen = ExamenFinal.findById(idExamen);
-        if (examen == null) {
-            res.redirect("/student/examenes?error=Examen no encontrado");
-            return null;
-        }
 
         AlumnoMateria curso = AlumnoMateria.findFirst("alumno_dni = ? AND cod_materia = ?", alumno.getDni(), examen.getCodMateria());
         if (curso == null) {
             res.redirect("/student/examenes?error=No estás inscripto en la materia del examen");
             return null;
         }
+        AlumnoExamenFinal yaInscripto = AlumnoExamenFinal.findFirst(
+                "alumno_dni = ? AND id_examen = ?",
+                alumno.getDni(), idExamenLong);
 
-        AlumnoExamenFinal yaInscripto = AlumnoExamenFinal.findFirst("alumno_dni = ? AND id_examen = ?", alumno.getDni(), examen.getIdExamen());
-        if (yaInscripto != null) {
-            res.redirect("/student/examenes?error=Ya estás inscripto en este examen");
-            return null;
-        }
-
-        AlumnoExamenFinal inscripcion = new AlumnoExamenFinal();
+        /*AlumnoExamenFinal inscripcion = new AlumnoExamenFinal();
         inscripcion.setAlumnoDni(alumno.getDni());
-        inscripcion.setIdExamen(examen.getIdExamen());
-        inscripcion.insert();
+        inscripcion.setIdExamen(idExamenLong);
+        inscripcion.insert();*/
+
+         Base.exec(
+                "INSERT INTO alumno_examen_final (alumno_dni, id_examen) "
+                        + "VALUES (?, ?)",
+                alumno.getDni(), idExamenLong);
 
         res.redirect("/student/notas?success=Inscripción al examen registrada");
         return null;
