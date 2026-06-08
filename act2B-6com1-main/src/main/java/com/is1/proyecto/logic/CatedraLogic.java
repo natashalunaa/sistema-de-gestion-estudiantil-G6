@@ -96,14 +96,14 @@ public class CatedraLogic {
 
         // si ya existe, vuelve a la pagina de catedras mostando un mensaje de error
         if (existente != null) {
-            res.redirect("/catedras?error=Asignacion existente");
+            res.redirect("/admin/catedras?error=Asignacion existente");
             return null;
         }
 
         // crea y guarda la asignación
         DocenteResponsableMateria.createIt("docente_dni", docenteDni, "cod_materia", codMateria);
         // una vez terminado vuelve al listado de catedras
-        res.redirect("admin/catedras");
+        res.redirect("/admin/catedras");
 
         return null;
     }
@@ -126,7 +126,7 @@ public class CatedraLogic {
         }
 
         // Regresa al listado de cátedras
-        res.redirect("admin/catedras");
+        res.redirect("/admin/catedras");
 
         return null;
     }
