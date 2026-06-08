@@ -1,23 +1,26 @@
 package com.is1.proyecto.logic;
 
-import com.is1.proyecto.models.Alumno;
-import com.is1.proyecto.models.AlumnoMateria;
-import com.is1.proyecto.models.Materia;
-import com.is1.proyecto.models.Persona;
-import com.is1.proyecto.models.Users;
-import org.javalite.activejdbc.Base;
-import org.javalite.activejdbc.LazyList;
-import org.mindrot.jbcrypt.BCrypt;
-import spark.ModelAndView;
-import spark.Request;
-import spark.Response;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.is1.proyecto.logic.UserLogic.*;
+import org.javalite.activejdbc.Base;
+import org.javalite.activejdbc.LazyList;
+import org.mindrot.jbcrypt.BCrypt;
+
+import static com.is1.proyecto.logic.UserLogic.ROLE_STUDENT;
+import static com.is1.proyecto.logic.UserLogic.isAdmin;
+import static com.is1.proyecto.logic.UserLogic.isAuthenticated;
+import com.is1.proyecto.models.Alumno;
+import com.is1.proyecto.models.AlumnoMateria;
+import com.is1.proyecto.models.Materia;
+import com.is1.proyecto.models.Persona;
+import com.is1.proyecto.models.Users;
+
+import spark.ModelAndView;
+import spark.Request;
+import spark.Response;
 import static spark.Spark.halt;
 
 public class StudentLogic {
@@ -26,7 +29,14 @@ public class StudentLogic {
             res.redirect("/?error=No autorizado");
             halt(401);
         }
+         String currentUsername = req.session().attribute("currentUserUsername");
+        if (!"/student/complete-profile".equals(req.pathInfo()) && !isStudentProfileComplete(currentUsername)) {
+            res.redirect("/student/complete-profile");
+            halt(302);
+        }
     }
+
+    
 
     // Dashboard
     public static ModelAndView dashboard(Request req, Response res) {
@@ -328,8 +338,7 @@ public class StudentLogic {
         return null;
     }
 
-    // Private methods
-    private static boolean isStudentProfileComplete(String username) {
+    public static boolean isStudentProfileComplete(String username) {
         if (username == null || username.isEmpty()) {
             return false;
         }

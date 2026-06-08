@@ -1,21 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cargar nota final</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="bg-gray-100 min-h-screen p-4">
-
     <div class="max-w-xl mx-auto bg-white rounded-3xl shadow-xl p-8">
-
-        <h1 class="text-3xl font-bold text-center text-gray-800">
-            Cargar nota final
-        </h1>
-
+        <h1 class="text-3xl font-bold text-center text-gray-800">Cargar nota final</h1>
         <p class="text-center text-gray-500 text-sm mt-2 mb-8">
             {{cod_materia}} - {{nombre_materia}} | {{fecha}}
         </p>
@@ -32,45 +25,63 @@
         </div>
         {{/successMessage}}
 
+        {{#inscriptos}}
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-3">Alumnos anotados</h2>
+            <div class="overflow-x-auto rounded-xl border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">DNI</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Nombre</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Nota</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {{#inscriptos}}
+                        <tr>
+                            <td class="px-4 py-3 text-sm text-gray-800">{{dni}}</td>
+                            <td class="px-4 py-3 text-sm text-gray-800">{{nombre}} {{apellido}}</td>
+                            <td class="px-4 py-3 text-sm text-gray-800">{{nota}}</td>
+                        </tr>
+                        {{/inscriptos}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {{/inscriptos}}
+
+        {{^inscriptos}}
+        <div class="bg-yellow-50 border border-yellow-300 text-yellow-700 p-4 rounded-xl mb-6 text-center">
+            No hay alumnos anotados en este examen.
+        </div>
+        {{/inscriptos}}
+
+        {{#inscriptos}}
         <form action="/teacher/examen-final/{{id_examen}}/nota" method="post" class="space-y-5">
-
             <div>
-                <label for="alumno_dni" class="block text-sm font-semibold text-gray-700 mb-2">
-                    DNI del alumno
-                </label>
-
-                <input
-                    type="text"
-                    id="alumno_dni"
-                    name="alumno_dni"
-                    required
-                    placeholder="Ingrese el DNI"
-                    class="w-full px-5 py-3 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label for="alumno_dni" class="block text-sm font-semibold text-gray-700 mb-2">Alumno</label>
+                <select id="alumno_dni" name="alumno_dni" required
+                        class="w-full px-5 py-3 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {{#inscriptos}}
+                    <option value="{{dni}}">{{dni}} - {{nombre}} {{apellido}}</option>
+                    {{/inscriptos}}
+                </select>
             </div>
 
             <div>
-                <label for="nota" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Nota
-                </label>
-
-                <input
-                    type="number"
-                    id="nota"
-                    name="nota"
-                    required
-                    min="0"
-                    max="10"
-                    step="0.01"
-                    placeholder="Ej: 8.50"
-                    class="w-full px-5 py-3 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label for="nota" class="block text-sm font-semibold text-gray-700 mb-2">Nota</label>
+                <input type="number" id="nota" name="nota" required min="0" max="10" step="0.01"
+                       placeholder="Ej: 8.50"
+                       class="w-full px-5 py-3 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
-            <button
-                type="submit"
-                class="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition font-semibold text-lg">
+            <button type="submit"
+                    class="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition font-semibold text-lg">
                 Guardar nota
             </button>
         </form>
+        {{/inscriptos}}
 
         <div class="mt-6 text-center">
             <a href="/dashboard/teacher" class="text-blue-600 hover:text-blue-800 font-semibold">
@@ -78,7 +89,5 @@
             </a>
         </div>
     </div>
-
 </body>
-
 </html>

@@ -31,38 +31,48 @@
         <div class="space-y-4">
             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
                 <h2 class="text-2xl font-semibold mb-2">Tu cuenta</h2>
-                <p class="text-gray-600">Accede a tu informacion y segui tus materias.</p>
+                <p class="text-gray-600">Accede a tu información, revisa tus materias y sigue tus exámenes.</p>
             </div>
 
             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                    <h2 class="text-2xl font-semibold">Materias que estoy cursando</h2>
-                    <div class="flex flex-col gap-2 sm:flex-row">
-                        <a href="/student/inscripciones/mis-inscripciones"
-                           class="inline-block bg-emerald-600 text-white py-2 px-4 rounded-xl hover:bg-emerald-700 text-center font-semibold">
-                            Mis inscripciones
-                        </a>
-                        <a href="/student/inscripciones"
-                           class="inline-block bg-blue-600 text-white py-2 px-4 rounded-xl hover:bg-blue-700 text-center font-semibold">
-                            Inscribirme
-                        </a>
-                    </div>
+                <h2 class="text-2xl font-semibold mb-4">Acciones</h2>
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <a href="/student/inscripciones"
+                       class="inline-block bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 text-center font-semibold">
+                        Inscribirme
+                    </a>
+                    <a href="/student/inscripciones/mis-inscripciones"
+                       class="inline-block bg-emerald-600 text-white py-3 px-4 rounded-xl hover:bg-emerald-700 text-center font-semibold">
+                        Mis inscripciones
+                    </a>
+                    <a href="/student/examenes"
+                       class="inline-block bg-indigo-600 text-white py-3 px-4 rounded-xl hover:bg-indigo-700 text-center font-semibold">
+                        Ver exámenes
+                    </a>
+                    <a href="/student/notas"
+                       class="inline-block bg-emerald-700 text-white py-3 px-4 rounded-xl hover:bg-emerald-800 text-center font-semibold">
+                        Mis notas
+                    </a>
                 </div>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                <h2 class="text-2xl font-semibold mb-4">Materias que estoy cursando</h2>
 
                 {{#materiasCursando}}
                 <div class="flex flex-col gap-2 border-t border-slate-200 py-4 first:border-t-0 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <p class="font-semibold text-gray-800">{{nombre_materia}}</p>
-                        <p class="text-sm text-gray-500">{{cod_materia}} | Anio {{anio_materia}}</p>
+                        <p class="text-sm text-gray-500">{{cod_materia}} | Año {{anio_materia}}</p>
                     </div>
-                    <span class="inline-block self-start rounded-lg bg-slate-200 px-3 py-1 text-sm font-semibold text-slate-700 sm:self-auto">
+                    <span class="inline-block rounded-lg bg-slate-200 px-3 py-1 text-sm font-semibold text-slate-700">
                         {{condicion_final}}
                     </span>
                 </div>
                 {{/materiasCursando}}
 
                 {{^materiasCursando}}
-                <p class="text-gray-600">Todavia no estas cursando ninguna materia.</p>
+                <p class="text-gray-600">Todavía no estás cursando ninguna materia.</p>
                 {{/materiasCursando}}
             </div>
         </div>
@@ -70,7 +80,7 @@
         <div class="mt-10 text-center">
             <a href="/logout"
                class="inline-block bg-red-600 text-white py-3 px-8 rounded-full hover:bg-red-700">
-                Cerrar sesion
+                Cerrar sesión
             </a>
         </div>
     </div>

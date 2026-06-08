@@ -258,6 +258,7 @@ public class App {
         // PROTECCIONES (Filtros antes de entrar a las rutas)
         before("/admin/catedra/*", CatedraLogic::middleware);
         before("/admin/catedras", CatedraLogic::middleware);
+        before("/teacher/mis-catedras", TeacherLogic::middlewareTeacher);
 
         // Muestra la página principal de gestión de cátedras.
         // Permitirá visualizar las asignaciones actuales entre docentes y materias.
@@ -310,9 +311,17 @@ public class App {
         ////////////////////// INCRIPCIONES //////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
 
+        before("/student/examenes", InscripcionLogic::middleware);
+        before("/student/examenes/inscribir/*", InscripcionLogic::middleware);
+        before("/student/inscripciones", InscripcionLogic::middleware);
+        before("/student/inscripciones/inscribir/*", InscripcionLogic::middleware);
+
+
+        get("/student/examenes", InscripcionLogic::listarExamenesDisponibles, new MustacheTemplateEngine());
+        post("/student/examenes/inscribir/:id_examen", InscripcionLogic::inscribirExamen);
+
         get("/student/inscripciones", InscripcionLogic::listarInscripciones, new MustacheTemplateEngine());
         post("/student/inscripciones/inscribir/:cod_materia", InscripcionLogic::inscribirMateria);
-        get("/student/inscripciones/mis-inscripciones", InscripcionLogic::misInscripciones, new MustacheTemplateEngine());
 
         ///////////////////////////////////////////////////////////////////////////////
         ////////////////////// Examenes Finales //////////////////////////
@@ -321,7 +330,10 @@ public class App {
         before("/teacher/crear-examen/:cod_materia", ExamenFinalLogic::middleware);
         before("/teacher/examen-final/:id_examen/nota", ExamenFinalLogic::middleware);
         before("/teacher/examen-materia", ExamenFinalLogic::middleware);
+        before("/student/notas", InscripcionLogic::middleware);
 
+
+        get("/student/notas", InscripcionLogic::misNotas, new MustacheTemplateEngine());
         get("/teacher/crear-examen/:cod_materia", ExamenFinalLogic::crearExamenForm, new MustacheTemplateEngine());
         post("/teacher/crear-examen/:cod_materia", ExamenFinalLogic::crearExamen);
         get("/teacher/examen-final/:id_examen/nota", ExamenFinalLogic::cargarNotaForm, new MustacheTemplateEngine());

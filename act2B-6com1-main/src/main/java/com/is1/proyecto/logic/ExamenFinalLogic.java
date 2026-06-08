@@ -1,9 +1,13 @@
 package com.is1.proyecto.logic;
 
-import java.sql.Date;
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.javalite.activejdbc.LazyList;
 
 import static com.is1.proyecto.logic.UserLogic.ROLE_TEACHER;
 import static com.is1.proyecto.logic.UserLogic.isAuthenticated;
@@ -119,6 +123,25 @@ public class ExamenFinalLogic {
         model.put("errorMessage", req.queryParams("error"));
         model.put("successMessage", req.queryParams("success"));
 
+
+        List<Map<String, Object>> inscriptos = new ArrayList<>();
+        LazyList<AlumnoExamenFinal> inscripcionesExamen =
+                AlumnoExamenFinal.where("id_examen = ?", examen.getIdExamen());
+
+        for (AlumnoExamenFinal inscripcion : inscripcionesExamen) {
+            Persona alumnoPersona = Persona.findById(inscripcion.getAlumnoDni());
+            if (alumnoPersona == null) {
+                continue;
+            }
+            Map<String, Object> alumno = new HashMap<>();
+            alumno.put("dni", alumnoPersona.getDni());
+            alumno.put("nombre", alumnoPersona.getNombre());
+            alumno.put("apellido", alumnoPersona.getApellido());
+            alumno.put("nota", inscripcion.getNota() != null ? inscripcion.getNota().toString() : "Pendiente");
+            inscriptos.add(alumno);
+        }
+
+        model.put("inscriptos", inscriptos);
         return new ModelAndView(model, "cargar_nota_final.mustache");
     }
 
@@ -176,13 +199,25 @@ public class ExamenFinalLogic {
                 "alumno_dni = ? AND id_examen = ?",
                 alumnoDni, examen.getIdExamen());
         if (alumnoExamen == null) {
-            alumnoExamen = new AlumnoExamenFinal();
-            alumnoExamen.setAlumnoDni(alumnoDni);
-            alumnoExamen.setIdExamen(examen.getIdExamen());
+            res.redirect(volver + "?error=El alumno no está inscripto en este examen");
+            return null;
         }
 
         alumnoExamen.setNota(nota);
         alumnoExamen.saveIt();
+
+         AlumnoMateria alumnoMateria = AlumnoMateria.findFirst(
+                    "alumno_dni = ? AND cod_materia = ?",
+                    alumnoDni, examen.getCodMateria());
+
+         if (nota.compareTo(new BigDecimal("6")) >= 0) {
+                alumnoMateria.setCondicionFinal("Regular");
+                alumnoMateria.saveIt();
+            } else {
+                alumnoMateria.setCondicionFinal("Libre");
+                alumnoMateria.saveIt();
+            }
+    
 
         res.redirect(volver + "?success=Nota cargada correctamente");
         return null;
