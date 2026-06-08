@@ -218,8 +218,8 @@ public class ExamenFinalLogic {
                 condFinal = "Regular";
             }
         Base.exec(
-                "UPDATE alumno_materia SET condicion_final = ? " +
-                    "WHERE alumno_dni = ? AND cod_materia = ?;",
+    "UPDATE alumno_materia SET condicion_final = ?::tcondicion_final " +
+                "WHERE alumno_dni = ? AND cod_materia = ?;",
                 condFinal, alumnoDni, examen.getCodMateria());
 
         res.redirect(volver + "?success=Nota cargada correctamente");
