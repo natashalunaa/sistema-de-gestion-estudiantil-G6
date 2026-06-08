@@ -155,8 +155,8 @@ public class App {
         // Protecciones del estilo "before" para rutas privilegiadas
         before("/student/complete-profile", StudentLogic::middleware);
         before("/dashboard/student", StudentLogic::middleware);
-        before("admin/student/edit/*", AdminLogic::middleware);
-        before("admin/student/delete/*", AdminLogic::middleware);
+        before("/admin/student/edit/*", AdminLogic::middleware);
+        before("/admin/student/delete/*", AdminLogic::middleware);
 
         // CREACION Y MANJEO DE ESTUDIANTES
         get(
@@ -176,12 +176,12 @@ public class App {
         post("/student/complete-profile", StudentLogic::completeProfile, new MustacheTemplateEngine());
 
         // Editar alumno
-        get("admin/student/edit/:dni", StudentLogic::editStudentForm, new MustacheTemplateEngine());
+        get("/admin/student/edit/:dni", StudentLogic::editStudentForm, new MustacheTemplateEngine());
 
-        post("admim/student/edit/:dni", StudentLogic::editStudent, new MustacheTemplateEngine());
+        post("/admin/student/edit/:dni", StudentLogic::editStudent, new MustacheTemplateEngine());
 
         // Eliminacion de estudiantes desde el dashboard del admin
-        post("admin/student/delete/:dni", StudentLogic::delete);
+        post("/admin/student/delete/:dni", StudentLogic::delete);
 
         ///////////////////////////////////////////////////////////////////////////////
         ////////////////////// TEACHERS ////////////////////////////
@@ -189,8 +189,8 @@ public class App {
 
         // PROTECCIONES
         // Protecciones del estilo "before" para rutas privilegiadas
-        before("admin/teacher/*", TeacherLogic::middleware);
-        before("admin/teachers", TeacherLogic::middleware);
+        before("/admin/teacher/*", TeacherLogic::middleware);
+        before("/admin/teachers", TeacherLogic::middleware);
         before("/teacher/mis-estudiantes",TeacherLogic::middlewareTeacher);
         before("/dashboard/teacher", TeacherLogic::middlewareTeacher);
 
@@ -206,16 +206,16 @@ public class App {
         get("/dashboard/teacher", TeacherLogic::dashboard, new MustacheTemplateEngine());
 
         // BUSCAR DOCENTE
-        get("admin/teachers/search", TeacherLogic::searchTeachers, new MustacheTemplateEngine());
+        get("/admin/teachers/search", TeacherLogic::searchTeachers, new MustacheTemplateEngine());
 
         // MOSTRAR FORMULARIO DE EDICIÓN
-        get("admin/teacher/edit/:dni", TeacherLogic::editTeacherForm, new MustacheTemplateEngine());
+        get("/admin/teacher/edit/:dni", TeacherLogic::editTeacherForm, new MustacheTemplateEngine());
 
         // GUARDAR CAMBIOS DEL DOCENTE
-        post("admin/teacher/edit/:dni", TeacherLogic::editTeacher);
+        post("/admin/teacher/edit/:dni", TeacherLogic::editTeacher);
 
         // ELIMINAR DOCENTE
-        post("admin/teacher/delete/:dni", TeacherLogic::deleteTeacher);
+        post("/admin/teacher/delete/:dni", TeacherLogic::deleteTeacher);
 
         //Ver los estudiantes asociados a un docente
         get("/teacher/mis-estudiantes", TeacherLogic::misEstudiantes, new MustacheTemplateEngine());
